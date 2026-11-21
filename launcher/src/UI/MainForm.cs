@@ -42,6 +42,7 @@ public sealed class MainForm : Form
     {
         config = AppConfig.Load();
         rpc = new DiscordRpc(text => AppendLog(text));
+        BundledMod.Install(config, text => AppendLog(text));
 
         Text = "Aurora Launcher";
         FormBorderStyle = FormBorderStyle.None;
