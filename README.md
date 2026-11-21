@@ -128,6 +128,6 @@ dotnet publish AuroraLauncher.csproj -c Release -r win-x64 --self-contained true
 - Настоящий туннель «как Radmin VPN» требует сервера-посредника с внешним IP — в проект не входит.
 ## Промо
 
-- Видео-обзор: [aurora-promo.mp4](https://github.com/vladis23445-ux/Aurora-Launcher/releases/download/v1.1.0/aurora-promo.mp4) · [webm](https://github.com/vladis23445-ux/Aurora-Launcher/releases/download/v1.1.0/aurora-promo.webm)
+- Геймплей в игре (34 с): [aurora-gameplay.mp4](https://github.com/vladis23445-ux/Aurora-Launcher/releases/download/v1.1.0/aurora-gameplay.mp4)`n- Моушен-обзор: [aurora-promo.mp4](https://github.com/vladis23445-ux/Aurora-Launcher/releases/download/v1.1.0/aurora-promo.mp4) · [webm](https://github.com/vladis23445-ux/Aurora-Launcher/releases/download/v1.1.0/aurora-promo.webm)
 - Исходник анимации: `promo/index.html` (самодостаточная HTML-страница, открывается в любом браузере)
 - Установщик: [AuroraSetup-1.1.0.exe](https://github.com/vladis23445-ux/Aurora-Launcher/releases/download/v1.1.0/AuroraSetup-1.1.0.exe)
