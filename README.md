@@ -126,3 +126,8 @@ dotnet publish AuroraLauncher.csproj -c Release -r win-x64 --self-contained true
 - Всё «шейдерное» (3D-эффекты, blur, заливка модели предмета) рисуется программно через `DrawContext`:
   собственный `RenderPipeline` для настоящих шейдеров не используется.
 - Настоящий туннель «как Radmin VPN» требует сервера-посредника с внешним IP — в проект не входит.
+## Промо
+
+- Видео-обзор: [aurora-promo.mp4](https://github.com/vladis23445-ux/Aurora-Launcher/releases/download/v1.1.0/aurora-promo.mp4) · [webm](https://github.com/vladis23445-ux/Aurora-Launcher/releases/download/v1.1.0/aurora-promo.webm)
+- Исходник анимации: `promo/index.html` (самодостаточная HTML-страница, открывается в любом браузере)
+- Установщик: [AuroraSetup-1.1.0.exe](https://github.com/vladis23445-ux/Aurora-Launcher/releases/download/v1.1.0/AuroraSetup-1.1.0.exe)

@@ -30,3 +30,7 @@ discord-rpc.log
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# --- медиа промо (лежат в релизе) ---
+promo/*.webm
+promo/*.mp4
