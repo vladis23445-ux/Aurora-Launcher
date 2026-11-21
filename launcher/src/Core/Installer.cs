@@ -108,18 +108,30 @@ public static class Installer
         progress.Report(40);
 
         string? modJar = ModBuilder.FindBuiltJar(config);
-        if (modJar == null)
+        bool hasProject = !string.IsNullOrWhiteSpace(config.ModProjectDir)
+                && Directory.Exists(config.ModProjectDir)
+                && File.Exists(Path.Combine(config.ModProjectDir, "build.gradle"));
+
+        if (modJar == null && hasProject)
         {
             log.Report("Сборка мода Aurora (gradle build)...");
             modJar = await ModBuilder.BuildAsync(config, javaPath, log, progress, ct);
         }
 
-        string target = Path.Combine(Meta.ModsDir(config), Path.GetFileName(modJar));
-        if (!string.Equals(Path.GetFullPath(modJar), Path.GetFullPath(target), StringComparison.OrdinalIgnoreCase))
+        if (modJar != null)
         {
-            File.Copy(modJar, target, true);
+            string target = Path.Combine(Meta.ModsDir(config), Path.GetFileName(modJar));
+            if (!string.Equals(Path.GetFullPath(modJar), Path.GetFullPath(target), StringComparison.OrdinalIgnoreCase))
+            {
+                File.Copy(modJar, target, true);
+            }
+            log.Report("Мод Aurora: " + Path.GetFileName(target));
         }
-        log.Report("Мод Aurora: " + Path.GetFileName(target));
+        else
+        {
+            // исходников рядом нет (обычная установка из setup) — берём мод, вшитый в лаунчер
+            BundledMod.Install(config, log.Report);
+        }
         progress.Report(100);
     }
 

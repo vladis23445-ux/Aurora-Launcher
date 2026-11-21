@@ -43,6 +43,10 @@ public sealed class MainForm : Form
         config = AppConfig.Load();
         rpc = new DiscordRpc(text => AppendLog(text));
         BundledMod.Install(config, text => AppendLog(text));
+        if (string.IsNullOrWhiteSpace(config.ModProjectDir))
+        {
+            AppendLog("Мод Aurora установлен из лаунчера (исходники не требуются)");
+        }
 
         Text = "Aurora Launcher";
         FormBorderStyle = FormBorderStyle.None;
@@ -74,10 +78,7 @@ public sealed class MainForm : Form
 
         AppendLog("Aurora Launcher готов");
         AppendLog($"Minecraft {Meta.GameVersion} · Fabric {Meta.FabricLoader} · Java 21");
-        if (string.IsNullOrWhiteSpace(config.ModProjectDir))
-        {
-            AppendLog("Папка мода не найдена — укажите её перед сборкой", LogKind.Warn);
-        }
+
     }
 
     // ---------------------------------------------------------------- layout

@@ -1,5 +1,5 @@
 ﻿#define AppName "Aurora Launcher"
-#define AppVersion "1.0.0"
+#define AppVersion "1.1.0"
 #define AppPublisher "Aurora Visuals"
 #define AppExe "AuroraLauncher.exe"
 
