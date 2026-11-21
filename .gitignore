@@ -1,0 +1,32 @@
+# --- Java / Gradle (мод) ---
+aurora/.gradle/
+aurora/build/
+aurora/run/
+aurora/.idea/
+*.iml
+
+# --- C# / .NET (лаунчер) ---
+launcher/src/bin/
+launcher/src/obj/
+launcher/dist/
+launcher/publish/
+*.user
+*.suo
+
+# --- сборочные артефакты ---
+*.jar
+!aurora/gradle/wrapper/gradle-wrapper.jar
+*.exe
+*.pdb
+
+# --- локальные данные и логи ---
+logs/
+*.log
+crash-reports/
+config.json
+discord-rpc.log
+
+# --- служебное ОС ---
+Thumbs.db
+desktop.ini
+.DS_Store

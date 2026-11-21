@@ -1,0 +1,27 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.aurora.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ClientPlayerInteractionManagerMixin",
+    "HeldItemRendererMixin",
+    "HotbarSmoothMixin",
+    "InGameHudMixin",
+    "InventoryScreenMixin",
+    "ItemEntityMixin",
+    "ItemEntityRendererMixin",
+    "LayerRenderStateMixin",
+    "LightmapTextureManagerMixin",
+    "LivingEntityMixin",
+    "SimpleOptionMixin",
+    "MinecraftClientMixin",
+    "PressableWidgetMixin",
+    "SliderWidgetMixin",
+    "CreativeInventoryScreenMixin",
+    "SplashOverlayMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 0
+  }
+}
