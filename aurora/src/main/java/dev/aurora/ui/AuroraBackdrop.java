@@ -37,20 +37,19 @@ public final class AuroraBackdrop {
         curtain(context, width, height, time, 0.0, 0.34, 0.20f, 0.030f, 0.0120f, ACCENT, progress, 0.17f * factor);
         curtain(context, width, height, time, 1.9, 0.27, 0.31f, 0.042f, 0.0090f, ACCENT2, progress, 0.13f * factor);
         curtain(context, width, height, time, 3.4, 0.41, 0.13f, 0.026f, 0.0160f, MINT, progress, 0.10f * factor);
-        curtain(context, width, height, time, 5.1, 0.22, 0.44f, 0.048f, 0.0070f, 0xFF18A06A, progress, 0.11f * factor);
 
         float drift = (float) Math.sin(time * 0.31) * 30f;
         Render2D.glow(context, width * 0.2f + drift, -height * 0.1f,
-                width * 0.42f, height * 0.55f, ACCENT, 0.30f * progress * factor, 3);
+                width * 0.42f, height * 0.55f, ACCENT, 0.30f * progress * factor, 1);
         Render2D.glow(context, width * 0.85f - drift, height * 0.98f,
-                width * 0.36f, height * 0.45f, ACCENT2, 0.18f * progress * factor, 3);
+                width * 0.36f, height * 0.45f, ACCENT2, 0.18f * progress * factor, 1);
     }
 
     private static void curtain(DrawContext context, int width, int height, double time,
                                 double phase, double speed, float baseFactor, float amplitudeFactor,
                                 float frequency, int color, float progress, float alpha) {
-        int step = 6;
-        int segments = 10;
+        int step = 12;
+        int segments = 8;
         float baseY = height * baseFactor;
         float amplitude = height * amplitudeFactor;
         float thickness = height * 0.26f;

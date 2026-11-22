@@ -475,3 +475,54 @@ internal sealed class AccountRow : Control
         base.OnClick(e);
     }
 }
+
+/// <summary>Карточка-панель с заголовком и текстом в стиле Aurora.</summary>
+internal sealed class CardPanel : Control
+{
+    public string Title { get; set; } = "";
+    public string Body { get; set; } = "";
+    public Color Accent { get; set; } = Theme.Accent;
+
+    public CardPanel()
+    {
+        SetStyle(ControlStyles.SupportsTransparentBackColor | ControlStyles.UserPaint, true);
+        DoubleBuffered = true;
+        BackColor = Color.Transparent;
+    }
+
+    protected override void OnPaint(PaintEventArgs e)
+    {
+        var g = e.Graphics;
+        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+
+        var rect = new RectangleF(0.5f, 0.5f, Width - 1f, Height - 1f);
+        using (var path = Theme.Rounded(rect, 14f))
+        using (var fill = new SolidBrush(Color.FromArgb(28, 14, 30, 24)))
+        {
+            g.FillPath(fill, path);
+        }
+        using (var path = Theme.Rounded(rect, 14f))
+        using (var pen = new Pen(Color.FromArgb(46, 62, 52), 1f))
+        {
+            g.DrawPath(pen, path);
+        }
+
+        using (var bar = new SolidBrush(Accent))
+        {
+            g.FillRectangle(bar, 16, 20, 3, 14);
+        }
+        using (var font = new Font("Segoe UI", 8.5f, FontStyle.Bold))
+        using (var brush = new SolidBrush(Color.FromArgb(150, 255, 205)))
+        {
+            g.DrawString(Title.ToUpperInvariant(), font, brush, 26, 18);
+        }
+
+        using (var font = new Font("Segoe UI", 9f))
+        using (var brush = new SolidBrush(Theme.Subtle))
+        using (var format = new StringFormat { Trimming = StringTrimming.EllipsisCharacter })
+        {
+            var area = new RectangleF(16, 44, Width - 32, Height - 56);
+            g.DrawString(Body, font, brush, area, format);
+        }
+    }
+}

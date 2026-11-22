@@ -57,7 +57,7 @@ public class TargetInfo extends Module {
 
         int accentColor = accent.getArgb();
 
-        Render2D.roundedRect(context, x, y, width, height, 8f, 0xD00A1411);
+        Render2D.roundedRect(context, x, y, width, height, 8f, 0x700A1411);
         Render2D.roundedBorder(context, x, y, width, height, 8f, 1f,
                 ColorUtil.withAlpha(accentColor, 0.55f));
 
@@ -71,7 +71,7 @@ public class TargetInfo extends Module {
 
             float barWidth = width - 20f;
             float ratio = Math.max(0f, Math.min(1f, health / maxHealth));
-            Render2D.roundedRect(context, x + 10f, y + 22f, barWidth, 4f, 2f, 0x66000000);
+            Render2D.roundedRect(context, x + 10f, y + 22f, barWidth, 4f, 2f, 0x50000000);
             if (ratio > 0.01f) {
                 Render2D.roundedRect(context, x + 10f, y + 22f, barWidth * ratio, 4f, 2f, accentColor);
             }

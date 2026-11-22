@@ -60,7 +60,7 @@ public class TargetHud extends Module {
         float x = mc.getWindow().getScaledWidth() * offsetX.getFloat() - panelW / 2f;
         float y = mc.getWindow().getScaledHeight() * offsetY.getFloat();
 
-        int back = ColorUtil.withAlpha(0xF01A1A20, alpha);
+        int back = ColorUtil.withAlpha(0x801A1A20, alpha);
         int line = ColorUtil.withAlpha(accent.getArgb(), alpha * 0.85f);
 
         Render2D.roundedRect(context, x, y, panelW, panelH, 10f, back);

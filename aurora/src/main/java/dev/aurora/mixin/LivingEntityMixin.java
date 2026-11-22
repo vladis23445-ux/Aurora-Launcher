@@ -2,6 +2,7 @@ package dev.aurora.mixin;
 
 import dev.aurora.Aurora;
 import dev.aurora.event.Events;
+import dev.aurora.modules.KillEffects;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -34,6 +35,26 @@ public abstract class LivingEntityMixin {
             Aurora.get().getBus().post(new Events.HealthChange(self, delta));
         } catch (Throwable ignored) {
         }
+    }
+
+    @Inject(method = "onDeath", at = @At("HEAD"), require = 0)
+    private void aurora$onDeath(net.minecraft.entity.damage.DamageSource source, CallbackInfo ci) {
+        if (Aurora.get() == null) {
+            return;
+        }
+        LivingEntity self = (LivingEntity) (Object) this;
+        if (self.getEntityWorld() == null || !self.getEntityWorld().isClient()) {
+            return;
+        }
+        // только убийства игроком и только не свой труп
+        var attackerEntity = source.getAttacker();
+        if (!(attackerEntity instanceof PlayerEntity attacker) || attacker != MinecraftClient.getInstance().player) {
+            return;
+        }
+        if (self == MinecraftClient.getInstance().player) {
+            return;
+        }
+        KillEffects.onEntityDeath(new net.minecraft.util.math.Vec3d(self.getX(), self.getY(), self.getZ()));
     }
 
     @Inject(method = "jump", at = @At("HEAD"))

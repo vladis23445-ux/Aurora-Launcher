@@ -55,7 +55,7 @@ public class ArmorHud extends Module {
             return;
         }
 
-        Render2D.roundedRect(context, x, y, panelW, total + 8f, 9f, 0xE615151A);
+        Render2D.roundedRect(context, x, y, panelW, total + 8f, 9f, 0x7015151A);
         Render2D.roundedBorder(context, x, y, panelW, total + 8f, 9f, 1f,
                 ColorUtil.withAlpha(0xFFFFFF, 0.06f));
 

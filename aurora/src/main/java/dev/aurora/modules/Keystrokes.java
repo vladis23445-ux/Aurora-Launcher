@@ -89,7 +89,7 @@ public class Keystrokes extends Module {
     }
 
     private void drawKey(DrawContext context, String label, float x, float y, float size, float press) {
-        int back = ColorUtil.lerp(0xB0121218, ColorUtil.replaceAlpha(accent.getArgb(), 210), press);
+        int back = ColorUtil.lerp(0x6A121218, ColorUtil.replaceAlpha(accent.getArgb(), 210), press);
         Render2D.roundedRect(context, x, y, size, size, 5f, back);
         Render2D.roundedBorder(context, x, y, size, size, 5f, 1f,
                 ColorUtil.withAlpha(0xFFFFFF, 0.06f + 0.10f * press));
@@ -98,7 +98,7 @@ public class Keystrokes extends Module {
     }
 
     private void drawBox(DrawContext context, String label, float x, float y, float w, float h, float press) {
-        int back = ColorUtil.lerp(0xB0121218, ColorUtil.replaceAlpha(accent.getArgb(), 190), press);
+        int back = ColorUtil.lerp(0x6A121218, ColorUtil.replaceAlpha(accent.getArgb(), 190), press);
         Render2D.roundedRect(context, x, y, w, h, 4.5f, back);
         Render2D.roundedBorder(context, x, y, w, h, 4.5f, 1f,
                 ColorUtil.withAlpha(0xFFFFFF, 0.06f + 0.10f * press));

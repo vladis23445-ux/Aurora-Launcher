@@ -40,11 +40,11 @@ public class PressableWidgetMixin {
 
         int fill;
         if (!active) {
-            fill = 0x800A0F0C;
+            fill = 0x600A0F0C;
         } else if (hovered) {
-            fill = 0xE6153F2E;
+            fill = 0xB8153F2E;
         } else {
-            fill = 0xD00E1A15;
+            fill = 0xA00E1A15;
         }
 
         int border = !active

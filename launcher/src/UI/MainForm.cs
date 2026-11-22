@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Reflection;
 using AuroraLauncher.Core;
 
 namespace AuroraLauncher.UI;
@@ -22,7 +23,12 @@ public sealed class MainForm : Form
     private readonly Label heroSubtitle = new();
     private readonly Label heroState = new();
     private readonly Label statusLabel = new();
+    private readonly CardPanel cardStatus = new();
+    private readonly CardPanel cardPromo = new();
+    private readonly CardPanel cardBuild = new();
+    private readonly CardPanel cardStart = new();
     private readonly AccentProgress progressBar = new();
+    private readonly Label footerLabel = new();
 
     private readonly GhostButton accountsButton = new();
     private readonly GhostButton settingsButton = new();
@@ -92,7 +98,7 @@ public sealed class MainForm : Form
         background.Controls.Add(header);
 
         accountChip.Text = "аккаунт";
-        accountChip.Bounds = new Rectangle(WindowWidth - 118 - 200, 25, 200, 32);
+        accountChip.Bounds = new Rectangle(WindowWidth / 2 - 105, 24, 210, 34);
         accountChip.Font = Theme.FontBold;
         accountChip.Click += (_, _) => OpenAccounts();
         header.Controls.Add(accountChip);
@@ -122,72 +128,113 @@ public sealed class MainForm : Form
         };
         header.MouseUp += (_, _) => dragging = false;
 
-        // hero
-        heroCaption.Text = "MINECRAFT";
-        heroCaption.Bounds = new Rectangle(58, 146, 400, 18);
+        // левая колонка
+        heroCaption.Text = $"MINECRAFT {Meta.GameVersion}";
+        heroCaption.Bounds = new Rectangle(58, 112, 420, 18);
         heroCaption.ForeColor = Theme.Subtle;
         heroCaption.BackColor = Color.Transparent;
         heroCaption.Font = Theme.FontSmall;
         background.Controls.Add(heroCaption);
 
-        heroVersion.Text = Meta.GameVersion;
-        heroVersion.Bounds = new Rectangle(52, 164, 600, 52);
+        heroVersion.Text = "Aurora Visuals";
+        heroVersion.Bounds = new Rectangle(52, 130, 640, 58);
         heroVersion.ForeColor = Theme.Text;
         heroVersion.BackColor = Color.Transparent;
-        heroVersion.Font = new Font("Segoe UI", 32f, FontStyle.Bold);
+        heroVersion.Font = new Font("Segoe UI", 30f, FontStyle.Bold);
         background.Controls.Add(heroVersion);
 
-        heroSubtitle.Text = $"Fabric {Meta.FabricLoader}   ·   Aurora Visuals   ·   Java 21";
-        heroSubtitle.Bounds = new Rectangle(58, 222, 760, 20);
+        heroSubtitle.Text = $"Fabric {Meta.FabricLoader}   ·   Java 21   ·   визуальный клиент";
+        heroSubtitle.Bounds = new Rectangle(58, 192, 700, 20);
         heroSubtitle.ForeColor = Theme.Subtle;
         heroSubtitle.BackColor = Color.Transparent;
         heroSubtitle.Font = Theme.FontBody;
         background.Controls.Add(heroSubtitle);
 
+        playButton.Text = "ИГРАТЬ";
+        playButton.Bounds = new Rectangle(58, 236, 420, 62);
+        playButton.Click += async (_, _) => await RunLaunchAsync();
+        background.Controls.Add(playButton);
+
+        Configure(installButton, "УСТАНОВИТЬ", 494, 236, 132, 62);
+        installButton.Click += async (_, _) => await RunInstallAsync();
+        background.Controls.Add(installButton);
+
         heroState.Text = "Проверяю установку...";
-        heroState.Bounds = new Rectangle(58, 250, 940, 20);
+        heroState.Bounds = new Rectangle(58, 312, 700, 20);
         heroState.ForeColor = Color.FromArgb(205, Theme.Accent2);
         heroState.BackColor = Color.Transparent;
         heroState.Font = Theme.FontSmall;
         background.Controls.Add(heroState);
 
-        // нижняя панель
-        statusLabel.Bounds = new Rectangle(56, 516, 968, 18);
+        progressBar.Bounds = new Rectangle(58, 342, 700, 6);
+        background.Controls.Add(progressBar);
+
+        statusLabel.Bounds = new Rectangle(58, 358, 700, 18);
         statusLabel.Text = "Готово";
         statusLabel.ForeColor = Theme.Subtle;
         statusLabel.BackColor = Color.Transparent;
         statusLabel.Font = Theme.FontSmall;
         background.Controls.Add(statusLabel);
 
-        progressBar.Bounds = new Rectangle(56, 538, 968, 6);
-        background.Controls.Add(progressBar);
-
-        Configure(accountsButton, "Аккаунты", 56, 556, 160, 44);
+        Configure(accountsButton, "Аккаунты", 58, 394, 124, 38);
         accountsButton.Click += (_, _) => OpenAccounts();
-
-        Configure(settingsButton, "Настройки", 228, 556, 160, 44);
-        settingsButton.Click += (_, _) => OpenSettings();
-
-        Configure(consoleButton, "Консоль", 400, 556, 132, 44);
-        consoleButton.Click += (_, _) => OpenConsole();
-
-        Configure(networkButton, "СЕТЬ", 544, 556, 96, 44);
-        networkButton.Click += (_, _) => OpenNetwork();
-
-        Configure(installButton, "УСТАНОВИТЬ", 850, 556, 174, 44);
-        installButton.Click += async (_, _) => await RunInstallAsync();
-
-        playButton.Text = "ИГРАТЬ";
-        playButton.Bounds = new Rectangle(652, 550, 186, 54);
-        playButton.Click += async (_, _) => await RunLaunchAsync();
-
         background.Controls.Add(accountsButton);
+
+        Configure(settingsButton, "Настройки", 190, 394, 124, 38);
+        settingsButton.Click += (_, _) => OpenSettings();
         background.Controls.Add(settingsButton);
+
+        Configure(consoleButton, "Консоль", 322, 394, 110, 38);
+        consoleButton.Click += (_, _) => OpenConsole();
         background.Controls.Add(consoleButton);
-        background.Controls.Add(installButton);
-        background.Controls.Add(playButton);
+
+        Configure(networkButton, "СЕТЬ", 440, 394, 96, 38);
+        networkButton.Click += (_, _) => OpenNetwork();
+        background.Controls.Add(networkButton);
+
+        // правая колонка — карточки
+        cardStatus.Title = "Состояние";
+        cardStatus.Body = "Проверяю...";
+        cardStatus.Bounds = new Rectangle(786, 112, 236, 132);
+        background.Controls.Add(cardStatus);
+
+        cardPromo.Title = "Проект";
+        cardPromo.Body = "Мод и лаунчер в одном setup.\r\n\r\nВышедшая версия — 1.1.0.\r\n\r\ngithub.com/vladis23445-ux/\r\nAurora-Launcher";
+        cardPromo.Accent = Theme.Accent2;
+        cardPromo.Bounds = new Rectangle(786, 258, 236, 166);
+        background.Controls.Add(cardPromo);
+
+        cardBuild.Title = "Сборка";
+        cardBuild.Body = $"Лаунчер {LauncherVersion}\r\nMinecraft {Meta.GameVersion}\r\nFabric {Meta.FabricLoader} · Java 21\r\nRAM: {config.RamMb} МБ";
+        cardBuild.Accent = Theme.Mint;
+        cardBuild.Bounds = new Rectangle(786, 438, 236, 126);
+        background.Controls.Add(cardBuild);
+
+        // нижняя полоса — как начать
+        cardStart.Title = "Как начать";
+        cardStart.Body = "1 · Нажмите «УСТАНОВИТЬ» — скачаются Minecraft, Fabric и мод Aurora\r\n" +
+                         "2 · Создайте аккаунт: вход не нужен, профиль хранится локально\r\n" +
+                         "3 · «ИГРАТЬ» — мод запустится вместе с игрой, RSHIFT открывает меню";
+        cardStart.Accent = Theme.Accent2;
+        cardStart.Bounds = new Rectangle(58, 452, 700, 112);
+        background.Controls.Add(cardStart);
+
+        footerLabel.Text = "Aurora Visuals · мод и лаунчер в одном setup · github.com/vladis23445-ux/Aurora-Launcher";
+        footerLabel.Bounds = new Rectangle(58, 578, 764, 16);
+        footerLabel.ForeColor = Color.FromArgb(110, Theme.Text);
+        footerLabel.BackColor = Color.Transparent;
+        footerLabel.Font = Theme.FontSmall;
+        background.Controls.Add(footerLabel);
     }
 
+    private static string LauncherVersion
+    {
+        get
+        {
+            var version = Assembly.GetExecutingAssembly().GetName().Version;
+            return version == null ? "1.1.0" : $"{version.Major}.{version.Minor}.{Math.Max(version.Build, 0)}";
+        }
+    }
     private static void Configure(Control control, string text, int x, int y, int w, int h)
     {
         control.Text = text;
@@ -220,6 +267,12 @@ public sealed class MainForm : Form
         heroState.ForeColor = installed
             ? Color.FromArgb(205, Theme.Accent2)
             : Color.FromArgb(255, 255, 196, 92);
+
+        cardStatus.Body = installed
+            ? $"Профиль: Fabric {Meta.FabricLoader}\r\nВерсия: {Meta.GameVersion}\r\nМодов: {mods} · RAM: {config.RamMb} МБ\r\nОкно: {config.WindowWidth}×{config.WindowHeight}"
+            : "Игра не установлена.\r\nНажмите «УСТАНОВИТЬ» — лаунчер скачает\r\nMinecraft, Fabric и мод.";
+
+        cardBuild.Body = $"Лаунчер {LauncherVersion}\r\nMinecraft {Meta.GameVersion}\r\nFabric {Meta.FabricLoader} · Java 21\r\nRAM: {config.RamMb} МБ";
     }
 
     private void OpenSettings()

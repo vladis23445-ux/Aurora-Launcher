@@ -21,7 +21,7 @@ public abstract class InventoryScreenMixin {
         int x = (self.width - 176) / 2;
         int y = (self.height - 166) / 2;
 
-        Render2D.roundedRect(context, x, y, 176f, 166f, 7f, 0xF00A1511);
+        Render2D.roundedRect(context, x, y, 176f, 166f, 7f, 0x8A0A1511);
         Render2D.roundedBorder(context, x, y, 176f, 166f, 7f, 1.2f,
                 ColorUtil.withAlpha(AuroraBackdrop.ACCENT, 0.55f));
         Render2D.gradientH(context, x, y, 176f, 1.4f,
@@ -52,7 +52,7 @@ public abstract class InventoryScreenMixin {
     }
 
     private static void slot(DrawContext context, int sx, int sy, int color) {
-        Render2D.roundedRect(context, sx, sy, 18f, 18f, 3f, 0x40000000);
+        Render2D.roundedRect(context, sx, sy, 18f, 18f, 3f, 0x2A000000);
         Render2D.roundedBorder(context, sx, sy, 18f, 18f, 3f, 1f, color);
     }
 }

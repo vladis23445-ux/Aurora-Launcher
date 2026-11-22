@@ -35,7 +35,7 @@ public abstract class HotbarSmoothMixin {
         if (path.endsWith("hud/hotbar")) {
             float w = width;
             float h = height;
-            Render2D.roundedRect(context, x, y, w, h, 5f, 0xE00A1511);
+            Render2D.roundedRect(context, x, y, w, h, 5f, 0x8C0A1511);
             Render2D.roundedBorder(context, x, y, w, h, 5f, 1f,
                     ColorUtil.withAlpha(AuroraBackdrop.ACCENT, 0.35f));
             for (int i = 1; i < 9; i++) {
@@ -47,7 +47,7 @@ public abstract class HotbarSmoothMixin {
 
         if (path.endsWith("hotbar_selection")) {
             int sx = HotbarSmooth.apply(x);
-            Render2D.roundedRect(context, sx, y, width, height, 4f, 0xB016362A);
+            Render2D.roundedRect(context, sx, y, width, height, 4f, 0x7016362A);
             Render2D.roundedBorder(context, sx, y, width, height, 4f, 1.4f,
                     ColorUtil.withAlpha(AuroraBackdrop.ACCENT, 0.85f));
             Render2D.gradientH(context, sx + 3f, y + 2f, width - 6f, 1.6f,

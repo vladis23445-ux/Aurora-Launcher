@@ -168,41 +168,20 @@ public final class ScreenProjection {
     }
 
     private static void fillQuad(DrawContext ctx, float[] a, float[] b, float[] c, float[] d, int color) {
-        float minYf = Math.min(Math.min(a[1], b[1]), Math.min(c[1], d[1]));
-        float maxYf = Math.max(Math.max(a[1], b[1]), Math.max(c[1], d[1]));
-        int y0 = (int) Math.floor(minYf);
-        int y1 = (int) Math.ceil(maxYf);
-        if (y1 - y0 > 480 || y1 < 0) {
+        // быстрый вариант: одна заливка по экранному прямоугольнику грани
+        float minX = Math.min(Math.min(a[0], b[0]), Math.min(c[0], d[0]));
+        float maxX = Math.max(Math.max(a[0], b[0]), Math.max(c[0], d[0]));
+        float minY = Math.min(Math.min(a[1], b[1]), Math.min(c[1], d[1]));
+        float maxY = Math.max(Math.max(a[1], b[1]), Math.max(c[1], d[1]));
+
+        int x0 = Math.round(minX);
+        int x1 = Math.round(maxX);
+        int y0 = Math.round(minY);
+        int y1 = Math.round(maxY);
+        if (x1 - x0 < 1 || y1 - y0 < 1) {
             return;
         }
-        y0 = Math.max(y0, 0);
-        y1 = Math.min(y1, ctx.getScaledWindowHeight());
-
-        float[] xs = {a[0], b[0], c[0], d[0]};
-        float[] ys = {a[1], b[1], c[1], d[1]};
-
-        for (int y = y0; y <= y1; y++) {
-            float py = y + 0.5f;
-            float minX = Float.MAX_VALUE;
-            float maxX = -Float.MAX_VALUE;
-            for (int i = 0; i < 4; i++) {
-                int j = (i + 1) & 3;
-                float ya = ys[i];
-                float yb = ys[j];
-                if (ya == yb) {
-                    continue;
-                }
-                if ((py >= ya && py < yb) || (py >= yb && py < ya)) {
-                    float t = (py - ya) / (yb - ya);
-                    float x = xs[i] + (xs[j] - xs[i]) * t;
-                    minX = Math.min(minX, x);
-                    maxX = Math.max(maxX, x);
-                }
-            }
-            if (minX < maxX) {
-                ctx.fill((int) minX, y, (int) maxX, y + 1, color);
-            }
-        }
+        ctx.fill(x0, y0, x1, y1, color);
     }
 
     public static void orb(DrawContext ctx, Vec3d pos, float worldSize, int core, int glow) {

@@ -56,7 +56,7 @@ public class Watermark extends Module {
         float x = offsetX.getFloat();
         float y = offsetY.getFloat();
 
-        Render2D.roundedRect(context, x, y, width, height, 8.5f, 0xE615151A);
+        Render2D.roundedRect(context, x, y, width, height, 8.5f, 0x7015151A);
         Render2D.roundedBorder(context, x, y, width, height, 8.5f, 1f, ColorUtil.withAlpha(0xFFFFFF, 0.07f));
         Render2D.roundedRect(context, x + 4.5f, y + 4.5f, 2.5f, height - 9f, 1.25f, first.getArgb());
 

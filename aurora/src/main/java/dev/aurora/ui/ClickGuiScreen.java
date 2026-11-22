@@ -41,7 +41,7 @@ public class ClickGuiScreen extends Screen {
     private static final float PAD = 8f;
     private static final float ROW = 22f;
 
-    private static final int PANEL = 0xD00B1512;
+    private static final int PANEL = 0x7A0B1512;
     private static final int CARD = 0x8C0A1411;
     private static final int STROKE = 0x229CFFD6;
     private static final int TEXT = 0xFFE9F9F0;

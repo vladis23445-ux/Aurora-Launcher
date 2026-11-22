@@ -33,7 +33,7 @@ public abstract class SliderWidgetMixin {
         boolean hovered = self.isHovered();
 
         Render2D.roundedRect(context, x, y, w, h, 5f,
-                ColorUtil.withAlpha(hovered ? 0xFF16362A : 0xFF0E1A15, 0.92f));
+                ColorUtil.withAlpha(hovered ? 0xC016362A : 0xC00E1A15, 0.92f));
         float fill = Math.max(1.5f, (float) (w * this.value));
         Render2D.roundedGradient(context, x, y, fill, h, 5f,
                 ColorUtil.withAlpha(AuroraBackdrop.ACCENT, 0.85f),
