@@ -3,32 +3,33 @@ using System.Drawing.Drawing2D;
 namespace AuroraLauncher.UI;
 
 /// <summary>
-/// Палитра «aurora»: глубокий зелёно-чёрный фон, изумрудное свечение,
-/// бирюзовые и мятные акценты — как настоящее северное сияние.
+/// Палитра лаунчера: графитово-индиговый фон, фиолетово-розовый градиент,
+/// матовые стеклянные панели и тонкие светлые линии.
 /// </summary>
 internal static class Theme
 {
-    public static readonly Color BgDeep = Color.FromArgb(4, 10, 8);
-    public static readonly Color Bg = Color.FromArgb(8, 17, 14);
-    public static readonly Color Card = Color.FromArgb(14, 26, 21);
-    public static readonly Color CardInner = Color.FromArgb(20, 35, 28);
-    public static readonly Color CardHover = Color.FromArgb(28, 47, 38);
-    public static readonly Color Stroke = Color.FromArgb(38, 62, 52);
-    public static readonly Color Text = Color.FromArgb(232, 247, 238);
-    public static readonly Color Subtle = Color.FromArgb(138, 170, 156);
+    public static readonly Color BgDeep = Color.FromArgb(7, 7, 13);
+    public static readonly Color Bg = Color.FromArgb(13, 14, 24);
+    public static readonly Color Card = Color.FromArgb(19, 21, 34);
+    public static readonly Color CardInner = Color.FromArgb(26, 29, 45);
+    public static readonly Color CardHover = Color.FromArgb(35, 39, 62);
+    public static readonly Color Stroke = Color.FromArgb(44, 49, 79);
+    public static readonly Color Text = Color.FromArgb(237, 239, 249);
+    public static readonly Color Subtle = Color.FromArgb(142, 150, 180);
 
-    public static readonly Color Accent = Color.FromArgb(62, 232, 160);
-    public static readonly Color Accent2 = Color.FromArgb(64, 214, 214);
-    public static readonly Color Mint = Color.FromArgb(150, 255, 205);
-    public static readonly Color Deep = Color.FromArgb(24, 138, 96);
-    public static readonly Color Danger = Color.FromArgb(255, 110, 118);
-    public static readonly Color Good = Color.FromArgb(96, 232, 160);
+    public static readonly Color Accent = Color.FromArgb(124, 92, 255);
+    public static readonly Color Accent2 = Color.FromArgb(255, 92, 157);
+    public static readonly Color Mint = Color.FromArgb(195, 180, 255);
+    public static readonly Color Deep = Color.FromArgb(59, 47, 134);
+    public static readonly Color Danger = Color.FromArgb(255, 95, 109);
+    public static readonly Color Good = Color.FromArgb(74, 222, 128);
 
     public static readonly Font FontSmall = new("Segoe UI", 8.25f);
     public static readonly Font FontBody = new("Segoe UI", 9f);
     public static readonly Font FontBold = new("Segoe UI", 9f, FontStyle.Bold);
+    public static readonly Font FontCap = new("Segoe UI", 7.9f, FontStyle.Bold);
     public static readonly Font FontTitle = new("Segoe UI", 16f, FontStyle.Bold);
-    public static readonly Font FontHero = new("Segoe UI", 22f, FontStyle.Bold);
+    public static readonly Font FontHero = new("Segoe UI", 25f, FontStyle.Bold);
 
     public static GraphicsPath Rounded(RectangleF rect, float radius)
     {
@@ -71,75 +72,45 @@ internal static class Theme
     }
 
     /// <summary>Мягкое радиальное свечение.</summary>
+    /// <summary>
+    /// Мягкое радиальное свечение. Рисуется серией вложенных эллипсов:
+    /// PathGradientBrush ломается, когда GDI+ отдаёт обрезанный контекст
+    /// прозрачного дочернего контрола.
+    /// </summary>
     public static void Glow(Graphics g, RectangleF rect, Color color)
     {
-        using var path = new GraphicsPath();
-        path.AddEllipse(rect);
-        using var brush = new PathGradientBrush(path)
+        if (rect.Width <= 2f || rect.Height <= 2f)
         {
-            CenterColor = color,
-            SurroundColors = new[] { Color.FromArgb(0, color.R, color.G, color.B) },
-        };
-        g.FillEllipse(brush, rect);
+            return;
+        }
+
+        const int steps = 20;
+        float cx = rect.X + rect.Width / 2f;
+        float cy = rect.Y + rect.Height / 2f;
+        int alpha = Math.Max(4, color.A / 9);
+
+        for (int i = 0; i < steps; i++)
+        {
+            float scale = 1f - i * 0.045f;
+            var r = new RectangleF(cx - rect.Width * scale / 2f, cy - rect.Height * scale / 2f,
+                rect.Width * scale, rect.Height * scale);
+            using var brush = new SolidBrush(Color.FromArgb(Math.Min(255, alpha), color));
+            g.FillEllipse(brush, r);
+        }
     }
 
-    /// <summary>
-    /// Полотно северного сияния: волнистая лента, залитая вертикальным
-    /// градиентом «прозрачный → цвет → прозрачный». Живёт за счёт фазы времени.
-    /// </summary>
-    public static void Curtain(Graphics g, int width, int height, double time,
-        double phase, double speed, float baseY, float amplitude, double frequency,
-        float thickness, Color color)
+    /// <summary>Цвет с заданной прозрачностью.</summary>
+    public static Color Alpha(Color color, int alpha) =>
+        Color.FromArgb(Math.Clamp(alpha, 0, 255), color.R, color.G, color.B);
+
+    public static Color Blend(Color a, Color b, float t)
     {
-        if (width <= 1 || height <= 1)
-        {
-            return;
-        }
-
-        int step = 8;
-        var top = new List<PointF>(width / step + 3);
-        for (int x = -16; x <= width + 16; x += step)
-        {
-            double wx = x * frequency + phase + time * speed;
-            double wave = Math.Sin(wx) * amplitude
-                          + Math.Sin(wx * 0.47 - time * speed * 0.6) * amplitude * 0.45;
-            top.Add(new PointF(x, (float)(baseY + wave)));
-        }
-
-        var points = new List<PointF>(top.Count * 2);
-        points.AddRange(top);
-        for (int i = top.Count - 1; i >= 0; i--)
-        {
-            double wx = top[i].X * frequency + phase + time * speed + 1.7;
-            float local = (float)(0.7 + 0.3 * Math.Sin(wx * 0.8));
-            points.Add(new PointF(top[i].X, top[i].Y + thickness * local));
-        }
-
-        using var path = new GraphicsPath();
-        path.AddPolygon(points.ToArray());
-
-        var bounds = path.GetBounds();
-        if (bounds.Height < 1f)
-        {
-            return;
-        }
-
-        using var brush = new LinearGradientBrush(bounds,
-            Color.FromArgb(0, color), color, LinearGradientMode.Vertical)
-        {
-            InterpolationColors = new ColorBlend
-            {
-                Colors = new[]
-                {
-                    Color.FromArgb(0, color.R, color.G, color.B),
-                    Color.FromArgb(color.A, color.R, color.G, color.B),
-                    Color.FromArgb((int)(color.A * 0.35f), color.R, color.G, color.B),
-                    Color.FromArgb(0, color.R, color.G, color.B),
-                },
-                Positions = new[] { 0f, 0.35f, 0.75f, 1f },
-            },
-        };
-        g.FillPath(brush, path);
+        float f = Math.Clamp(t, 0f, 1f);
+        return Color.FromArgb(
+            (int)(a.A + (b.A - a.A) * f),
+            (int)(a.R + (b.R - a.R) * f),
+            (int)(a.G + (b.G - a.G) * f),
+            (int)(a.B + (b.B - a.B) * f));
     }
 
     public static string ShortUuid(string uuid) =>

@@ -3,108 +3,6 @@ using AuroraLauncher.Core;
 
 namespace AuroraLauncher.UI;
 
-/// <summary>Фон приложения: глубокий зелёный градиент + живые полотна северного сияния.</summary>
-internal sealed class AuroraBackground : Panel
-{
-    private readonly System.Windows.Forms.Timer timer;
-
-    public AuroraBackground()
-    {
-        SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint |
-                 ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
-        BackColor = Theme.Bg;
-        timer = new System.Windows.Forms.Timer { Interval = 45 };
-        timer.Tick += (_, _) => Invalidate();
-        timer.Disposed += (_, _) => timer.Stop();
-        timer.Start();
-    }
-
-    protected override void OnPaint(PaintEventArgs e)
-    {
-        var g = e.Graphics;
-        g.SmoothingMode = SmoothingMode.AntiAlias;
-
-        using (var brush = new LinearGradientBrush(
-                   new Rectangle(0, 0, Math.Max(1, Width), Math.Max(1, Height)),
-                   Theme.BgDeep, Theme.Bg, LinearGradientMode.Vertical))
-        {
-            g.FillRectangle(brush, ClientRectangle);
-        }
-
-        double t = Environment.TickCount64 / 1000.0;
-        float h = Math.Max(1, Height);
-        float w = Math.Max(1, Width);
-
-        Theme.Glow(g, new RectangleF(w * 0.10f - 260, -h * 0.35f, w * 0.75f, h * 0.95f),
-            Color.FromArgb(52, Theme.Accent));
-        Theme.Glow(g, new RectangleF(w * 0.70f - 180, -h * 0.22f, w * 0.6f, h * 0.8f),
-            Color.FromArgb(34, Theme.Accent2));
-
-        Theme.Curtain(g, Width, Height, t, 0.0, 0.34, h * 0.20f, h * 0.035f, 0.0042,
-            h * 0.30f, Color.FromArgb(96, Theme.Accent));
-        Theme.Curtain(g, Width, Height, t, 1.9, 0.27, h * 0.31f, h * 0.045f, 0.0031,
-            h * 0.24f, Color.FromArgb(74, Theme.Accent2));
-        Theme.Curtain(g, Width, Height, t, 3.4, 0.41, h * 0.13f, h * 0.028f, 0.0055,
-            h * 0.20f, Color.FromArgb(58, Theme.Mint));
-        Theme.Curtain(g, Width, Height, t, 5.1, 0.22, h * 0.44f, h * 0.05f, 0.0024,
-            h * 0.18f, Color.FromArgb(40, Theme.Deep));
-
-        using var vignette = new LinearGradientBrush(
-            new Rectangle(0, 0, Math.Max(1, Width), Math.Max(1, Height)),
-            Color.FromArgb(0, 0, 0, 0), Color.FromArgb(150, 0, 0, 0), LinearGradientMode.Vertical);
-        g.FillRectangle(vignette, ClientRectangle);
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        if (disposing)
-        {
-            timer.Stop();
-            timer.Dispose();
-        }
-        base.Dispose(disposing);
-    }
-}
-
-/// <summary>Шапка: логотип-марка и градиентный заголовок.</summary>
-internal sealed class HeaderBar : Panel
-{
-    public HeaderBar()
-    {
-        SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint |
-                 ControlStyles.OptimizedDoubleBuffer, true);
-        BackColor = Theme.Bg;
-    }
-
-    protected override void OnPaint(PaintEventArgs e)
-    {
-        var g = e.Graphics;
-        g.SmoothingMode = SmoothingMode.AntiAlias;
-
-        var mark = new RectangleF(28, 24, 34, 34);
-        Theme.FillGradient(g, mark, 10f, Theme.Accent, Theme.Accent2, LinearGradientMode.BackwardDiagonal);
-        Theme.Fill(g, new RectangleF(mark.X + 9, mark.Y + 9, 16, 16), 8f, Color.FromArgb(70, 255, 255, 255));
-        using (var pen = new Pen(Color.FromArgb(60, 255, 255, 255), 1f))
-        {
-            g.DrawEllipse(pen, mark.X + 9, mark.Y + 9, 16, 16);
-        }
-
-        var titleRect = new RectangleF(76, 22, 240, 26);
-        using (var titleBrush = new LinearGradientBrush(titleRect, Theme.Text, Theme.Accent2,
-                   LinearGradientMode.Horizontal))
-        {
-            g.DrawString("AURORA", Theme.FontTitle, titleBrush, titleRect.X, titleRect.Y);
-        }
-        using (var small = new SolidBrush(Theme.Subtle))
-        {
-            g.DrawString("visual edition · launcher", Theme.FontSmall, small, 78, 50);
-        }
-
-        using var line = new Pen(Color.FromArgb(16, 255, 255, 255), 1f);
-        g.DrawLine(line, 0, Height - 1, Width, Height - 1);
-    }
-}
-
 /// <summary>Контейнер поля ввода: скруглённый фон, внутри borderless-контрол.</summary>
 internal sealed class FieldPanel : Panel
 {
@@ -149,12 +47,12 @@ internal sealed class FieldPanel : Panel
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias;
         var rect = new RectangleF(0.5f, 0.5f, Width - 1f, Height - 1f);
-        Theme.Fill(g, rect, 8f, Theme.CardInner);
-        Theme.Border(g, rect, 8f, Theme.Stroke);
+        Theme.Fill(g, rect, 9f, Theme.CardInner);
+        Theme.Border(g, rect, 9f, Theme.Stroke);
     }
 }
 
-/// <summary>Основная кнопка: градиент emerald → teal, блик и плавная подсветка.</summary>
+/// <summary>Основная кнопка: градиент фиолетовый → розовый, подсветка и мягкая тень.</summary>
 internal sealed class AccentButton : Button
 {
     private bool hover;
@@ -170,7 +68,7 @@ internal sealed class AccentButton : Button
         FlatAppearance.BorderSize = 0;
         BackColor = Color.Transparent;
         ForeColor = Color.White;
-        Font = new Font("Segoe UI", 10f, FontStyle.Bold);
+        Font = new Font("Segoe UI", 10.5f, FontStyle.Bold);
         Cursor = Cursors.Hand;
         TabStop = false;
         hoverTimer.Tick += (_, _) => StepHover();
@@ -195,37 +93,39 @@ internal sealed class AccentButton : Button
     {
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias;
-        var rect = new RectangleF(0.5f, 0.5f, Width - 1f, Height - 1f);
+        var rect = new RectangleF(2f, 2f, Width - 4f, Height - 6f);
 
         if (Enabled)
         {
-            int lift = (int)(16 * hoverAmount);
-            Theme.FillGradient(g, rect, 11f, Lighten(Theme.Accent, lift),
-                Lighten(Theme.Accent2, (int)(12 * hoverAmount)));
+            Theme.Glow(g, new RectangleF(0, Height * 0.35f, Width, Height * 0.9f),
+                Color.FromArgb((int)(46 + 44 * hoverAmount), Theme.Accent));
+            Theme.FillGradient(g, rect, 14f,
+                Theme.Blend(Theme.Accent, Color.White, 0.05f * hoverAmount),
+                Theme.Blend(Theme.Accent2, Color.White, 0.08f * hoverAmount));
+
             using var gloss = new LinearGradientBrush(
-                new RectangleF(0, 0, Width, Height * 0.6f),
-                Color.FromArgb(54, 255, 255, 255), Color.FromArgb(0, 255, 255, 255),
+                new RectangleF(0, rect.Y, Width, rect.Height * 0.62f),
+                Color.FromArgb(48, 255, 255, 255), Color.FromArgb(0, 255, 255, 255),
                 LinearGradientMode.Vertical);
-            using var path = Theme.Rounded(rect, 11f);
-            g.FillPath(gloss, path);
+            using (var path = Theme.Rounded(rect, 14f))
+            {
+                g.FillPath(gloss, path);
+            }
+            Theme.Border(g, rect, 14f, Color.FromArgb(70, 255, 255, 255));
         }
         else
         {
-            Theme.Fill(g, rect, 11f, Color.FromArgb(70, 84, 78));
+            Theme.Fill(g, rect, 14f, Color.FromArgb(38, 41, 62));
+            Theme.Border(g, rect, 14f, Theme.Stroke);
         }
 
-        TextRenderer.DrawText(g, Text, Font, new Rectangle(0, 0, Width, Height),
-            Color.White, TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+        TextRenderer.DrawText(g, Text, Font, new Rectangle(0, 0, Width, Height - 4),
+            Enabled ? Color.White : Theme.Subtle,
+            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
     }
-
-    private static Color Lighten(Color color, int amount) => Color.FromArgb(
-        color.A,
-        Math.Min(255, color.R + amount),
-        Math.Min(255, color.G + amount),
-        Math.Min(255, color.B + amount));
 }
 
-/// <summary>Второстепенная кнопка: тёмная плашка с рамкой и мягким свечением.</summary>
+/// <summary>Второстепенная кнопка: матовое стекло с тонкой рамкой.</summary>
 internal sealed class GhostButton : Button
 {
     private bool hover;
@@ -266,23 +166,14 @@ internal sealed class GhostButton : Button
         g.SmoothingMode = SmoothingMode.AntiAlias;
         var rect = new RectangleF(0.5f, 0.5f, Width - 1f, Height - 1f);
 
-        Color baseFill = Enabled ? Theme.CardInner : Color.FromArgb(22, 32, 27);
-        Theme.Fill(g, rect, 9f, Blend(baseFill, Theme.CardHover, hoverAmount));
-        Theme.Border(g, rect, 9f, Blend(Theme.Stroke, Color.FromArgb(150, Theme.Accent), hoverAmount));
+        int fillAlpha = (int)(16 + 26 * hoverAmount);
+        Theme.Fill(g, rect, 11f, Color.FromArgb(Enabled ? fillAlpha : 10, 255, 255, 255));
+        Theme.Border(g, rect, 11f,
+            Color.FromArgb((int)(26 + 70 * hoverAmount), Theme.Accent2));
 
         TextRenderer.DrawText(g, Text, Font, new Rectangle(0, 0, Width, Height),
-            Enabled ? Blend(Theme.Text, Color.White, hoverAmount) : Theme.Subtle,
+            Enabled ? Theme.Blend(Theme.Subtle, Color.White, hoverAmount) : Color.FromArgb(110, Theme.Subtle),
             TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
-    }
-
-    private static Color Blend(Color a, Color b, float t)
-    {
-        float f = Math.Clamp(t, 0f, 1f);
-        return Color.FromArgb(
-            (int)(a.A + (b.A - a.A) * f),
-            (int)(a.R + (b.R - a.R) * f),
-            (int)(a.G + (b.G - a.G) * f),
-            (int)(a.B + (b.B - a.B) * f));
     }
 }
 
@@ -349,10 +240,10 @@ internal sealed class GlyphButton : Control
 
         if (hoverAmount > 0.01f)
         {
-            Theme.Fill(g, rect, 8f, Color.FromArgb((int)(36 * hoverAmount), 255, 255, 255));
+            Theme.Fill(g, rect, 9f, Color.FromArgb((int)(46 * hoverAmount), 255, 255, 255));
         }
 
-        Color color = hoverAmount > 0.4f ? Theme.Text : Theme.Subtle;
+        Color color = hoverAmount > 0.4f ? Color.White : Theme.Subtle;
         TextRenderer.DrawText(g, Text, Font, new Rectangle(0, 0, Width, Height), color,
             TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
     }
@@ -390,12 +281,13 @@ internal sealed class AccentProgress : Control
         var g = e.Graphics;
         g.SmoothingMode = SmoothingMode.AntiAlias;
         var rect = new RectangleF(0, 0, Math.Max(1, Width), Math.Max(1, Height));
+        float radius = rect.Height / 2f;
 
-        Theme.Fill(g, rect, Height / 2f, Color.FromArgb(26, 255, 255, 255));
+        Theme.Fill(g, rect, radius, Color.FromArgb(24, 255, 255, 255));
         float width = rect.Width * Math.Clamp(value, 0, 100) / 100f;
         if (width > 2f)
         {
-            Theme.FillGradient(g, new RectangleF(0, 0, width, rect.Height), Height / 2f,
+            Theme.FillGradient(g, new RectangleF(0, 0, width, rect.Height), radius,
                 Theme.Accent, Theme.Accent2);
         }
     }
@@ -432,18 +324,18 @@ internal sealed class AccountRow : Control
 
         if (IsSelected)
         {
-            Theme.Fill(g, rect, 11f, Color.FromArgb(40, Theme.Accent));
-            Theme.Border(g, rect, 11f, Color.FromArgb(130, Theme.Accent));
+            Theme.Fill(g, rect, 12f, Color.FromArgb(38, Theme.Accent));
+            Theme.Border(g, rect, 12f, Color.FromArgb(140, Theme.Accent));
         }
         else if (hover)
         {
-            Theme.Fill(g, rect, 11f, Theme.CardHover);
-            Theme.Border(g, rect, 11f, Theme.Stroke);
+            Theme.Fill(g, rect, 12f, Theme.CardHover);
+            Theme.Border(g, rect, 12f, Theme.Stroke);
         }
         else
         {
-            Theme.Fill(g, rect, 11f, Theme.CardInner);
-            Theme.Border(g, rect, 11f, Theme.Stroke);
+            Theme.Fill(g, rect, 12f, Theme.CardInner);
+            Theme.Border(g, rect, 12f, Theme.Stroke);
         }
 
         var avatar = new RectangleF(10, 10, 34, 34);
@@ -476,7 +368,7 @@ internal sealed class AccountRow : Control
     }
 }
 
-/// <summary>Карточка-панель с заголовком и текстом в стиле Aurora.</summary>
+/// <summary>Стеклянная карточка с заголовком-капсом и текстом.</summary>
 internal sealed class CardPanel : Control
 {
     public string Title { get; set; } = "";
@@ -485,44 +377,42 @@ internal sealed class CardPanel : Control
 
     public CardPanel()
     {
-        SetStyle(ControlStyles.SupportsTransparentBackColor | ControlStyles.UserPaint, true);
-        DoubleBuffered = true;
+        SetStyle(ControlStyles.SupportsTransparentBackColor | ControlStyles.UserPaint |
+                 ControlStyles.OptimizedDoubleBuffer | ControlStyles.ResizeRedraw, true);
         BackColor = Color.Transparent;
     }
 
     protected override void OnPaint(PaintEventArgs e)
     {
         var g = e.Graphics;
-        g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+        g.SmoothingMode = SmoothingMode.AntiAlias;
 
         var rect = new RectangleF(0.5f, 0.5f, Width - 1f, Height - 1f);
-        using (var path = Theme.Rounded(rect, 14f))
-        using (var fill = new SolidBrush(Color.FromArgb(28, 14, 30, 24)))
+        Theme.Fill(g, rect, 15f, Color.FromArgb(228, 20, 22, 36));
+        Theme.Border(g, rect, 15f, Color.FromArgb(30, 255, 255, 255));
+
+        // светлая кромка сверху
+        using (var top = new LinearGradientBrush(
+                   new RectangleF(rect.X, rect.Y, rect.Width, 26f),
+                   Color.FromArgb(26, 255, 255, 255), Color.FromArgb(0, 255, 255, 255),
+                   LinearGradientMode.Vertical))
+        using (var path = Theme.Rounded(rect, 15f))
         {
-            g.FillPath(fill, path);
-        }
-        using (var path = Theme.Rounded(rect, 14f))
-        using (var pen = new Pen(Color.FromArgb(46, 62, 52), 1f))
-        {
-            g.DrawPath(pen, path);
+            g.FillPath(top, path);
         }
 
-        using (var bar = new SolidBrush(Accent))
+        using (var dot = new SolidBrush(Accent))
         {
-            g.FillRectangle(bar, 16, 20, 3, 14);
+            g.FillEllipse(dot, 16, 21, 5, 5);
         }
-        using (var font = new Font("Segoe UI", 8.5f, FontStyle.Bold))
-        using (var brush = new SolidBrush(Color.FromArgb(150, 255, 205)))
-        {
-            g.DrawString(Title.ToUpperInvariant(), font, brush, 26, 18);
-        }
+        TextRenderer.DrawText(g, Spaced(Title.ToUpperInvariant()), Theme.FontCap,
+            new Rectangle(28, 16, Width - 44, 16), Color.FromArgb(205, Theme.Subtle),
+            TextFormatFlags.Left | TextFormatFlags.NoPadding);
 
-        using (var font = new Font("Segoe UI", 9f))
-        using (var brush = new SolidBrush(Theme.Subtle))
-        using (var format = new StringFormat { Trimming = StringTrimming.EllipsisCharacter })
-        {
-            var area = new RectangleF(16, 44, Width - 32, Height - 56);
-            g.DrawString(Body, font, brush, area, format);
-        }
+        TextRenderer.DrawText(g, Body, Theme.FontBody,
+            new Rectangle(16, 40, Width - 32, Height - 52), Theme.Subtle,
+            TextFormatFlags.Left | TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
     }
+
+    private static string Spaced(string text) => string.Join(" ", text.ToCharArray());
 }

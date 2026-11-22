@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Reflection;
 using AuroraLauncher.Core;
 
@@ -11,37 +10,11 @@ public sealed class MainForm : Form
 
     private readonly AppConfig config;
     private readonly DiscordRpc rpc;
-
-    private readonly AuroraBackground background = new();
-    private readonly HeaderBar header = new();
-    private readonly GhostButton accountChip = new();
-    private readonly GlyphButton minimizeButton = new("–");
-    private readonly GlyphButton closeButton = new("✕");
-
-    private readonly Label heroCaption = new();
-    private readonly Label heroVersion = new();
-    private readonly Label heroSubtitle = new();
-    private readonly Label heroState = new();
-    private readonly Label statusLabel = new();
-    private readonly CardPanel cardStatus = new();
-    private readonly CardPanel cardPromo = new();
-    private readonly CardPanel cardBuild = new();
-    private readonly CardPanel cardStart = new();
-    private readonly AccentProgress progressBar = new();
-    private readonly Label footerLabel = new();
-
-    private readonly GhostButton accountsButton = new();
-    private readonly GhostButton settingsButton = new();
-    private readonly GhostButton consoleButton = new();
-    private readonly GhostButton networkButton = new();
-    private readonly GhostButton installButton = new();
-    private readonly AccentButton playButton = new();
+    private readonly AuroraSurface surface = new();
 
     private ConsoleForm? consoleForm;
     private CancellationTokenSource? cts;
     private bool busy;
-    private bool dragging;
-    private Point dragOrigin;
     private Account? current;
 
     public MainForm()
@@ -84,147 +57,55 @@ public sealed class MainForm : Form
 
         AppendLog("Aurora Launcher готов");
         AppendLog($"Minecraft {Meta.GameVersion} · Fabric {Meta.FabricLoader} · Java 21");
-
     }
 
     // ---------------------------------------------------------------- layout
 
     private void BuildUi()
     {
-        background.Dock = DockStyle.Fill;
-        Controls.Add(background);
+        surface.Dock = DockStyle.Fill;
+        surface.Caption = $"MINECRAFT {Meta.GameVersion}";
+        surface.Title = "Aurora Visuals";
+        surface.Subtitle = $"Fabric {Meta.FabricLoader}   ·   Java 21   ·   визуальный клиент";
+        surface.Footer = "Aurora Visuals  ·  мод и лаунчер в одном setup  ·  github.com/vladis23445-ux/Aurora-Launcher";
+        surface.CardPromoBody = "Мод и лаунчер в одном setup.\r\nВерсия 1.1.0\r\n\r\ngithub.com/vladis23445-ux/Aurora-Launcher";
+        surface.CardStartBody = "1 · «УСТАНОВИТЬ» — Minecraft, Fabric и мод\r\n2 · Аккаунт локальный, вход не нужен\r\n3 · «ИГРАТЬ», меню мода — RSHIFT";
+        surface.Action += OnSurfaceAction;
+        Controls.Add(surface);
+    }
 
-        header.Bounds = new Rectangle(0, 0, WindowWidth, 84);
-        background.Controls.Add(header);
-
-        accountChip.Text = "аккаунт";
-        accountChip.Bounds = new Rectangle(WindowWidth / 2 - 105, 24, 210, 34);
-        accountChip.Font = Theme.FontBold;
-        accountChip.Click += (_, _) => OpenAccounts();
-        header.Controls.Add(accountChip);
-
-        minimizeButton.Bounds = new Rectangle(WindowWidth - 88, 26, 30, 30);
-        minimizeButton.Clicked += (_, _) => WindowState = FormWindowState.Minimized;
-        header.Controls.Add(minimizeButton);
-
-        closeButton.Bounds = new Rectangle(WindowWidth - 52, 26, 30, 30);
-        closeButton.Clicked += (_, _) => Close();
-        header.Controls.Add(closeButton);
-
-        header.MouseDown += (_, e) =>
+    private async void OnSurfaceAction(object? sender, string id)
+    {
+        switch (id)
         {
-            if (e.Button == MouseButtons.Left)
-            {
-                dragging = true;
-                dragOrigin = e.Location;
-            }
-        };
-        header.MouseMove += (_, e) =>
-        {
-            if (dragging)
-            {
-                Location = new Point(Location.X + e.X - dragOrigin.X, Location.Y + e.Y - dragOrigin.Y);
-            }
-        };
-        header.MouseUp += (_, _) => dragging = false;
-
-        // левая колонка
-        heroCaption.Text = $"MINECRAFT {Meta.GameVersion}";
-        heroCaption.Bounds = new Rectangle(58, 112, 420, 18);
-        heroCaption.ForeColor = Theme.Subtle;
-        heroCaption.BackColor = Color.Transparent;
-        heroCaption.Font = Theme.FontSmall;
-        background.Controls.Add(heroCaption);
-
-        heroVersion.Text = "Aurora Visuals";
-        heroVersion.Bounds = new Rectangle(52, 130, 640, 58);
-        heroVersion.ForeColor = Theme.Text;
-        heroVersion.BackColor = Color.Transparent;
-        heroVersion.Font = new Font("Segoe UI", 30f, FontStyle.Bold);
-        background.Controls.Add(heroVersion);
-
-        heroSubtitle.Text = $"Fabric {Meta.FabricLoader}   ·   Java 21   ·   визуальный клиент";
-        heroSubtitle.Bounds = new Rectangle(58, 192, 700, 20);
-        heroSubtitle.ForeColor = Theme.Subtle;
-        heroSubtitle.BackColor = Color.Transparent;
-        heroSubtitle.Font = Theme.FontBody;
-        background.Controls.Add(heroSubtitle);
-
-        playButton.Text = "ИГРАТЬ";
-        playButton.Bounds = new Rectangle(58, 236, 420, 62);
-        playButton.Click += async (_, _) => await RunLaunchAsync();
-        background.Controls.Add(playButton);
-
-        Configure(installButton, "УСТАНОВИТЬ", 494, 236, 132, 62);
-        installButton.Click += async (_, _) => await RunInstallAsync();
-        background.Controls.Add(installButton);
-
-        heroState.Text = "Проверяю установку...";
-        heroState.Bounds = new Rectangle(58, 312, 700, 20);
-        heroState.ForeColor = Color.FromArgb(205, Theme.Accent2);
-        heroState.BackColor = Color.Transparent;
-        heroState.Font = Theme.FontSmall;
-        background.Controls.Add(heroState);
-
-        progressBar.Bounds = new Rectangle(58, 342, 700, 6);
-        background.Controls.Add(progressBar);
-
-        statusLabel.Bounds = new Rectangle(58, 358, 700, 18);
-        statusLabel.Text = "Готово";
-        statusLabel.ForeColor = Theme.Subtle;
-        statusLabel.BackColor = Color.Transparent;
-        statusLabel.Font = Theme.FontSmall;
-        background.Controls.Add(statusLabel);
-
-        Configure(accountsButton, "Аккаунты", 58, 394, 124, 38);
-        accountsButton.Click += (_, _) => OpenAccounts();
-        background.Controls.Add(accountsButton);
-
-        Configure(settingsButton, "Настройки", 190, 394, 124, 38);
-        settingsButton.Click += (_, _) => OpenSettings();
-        background.Controls.Add(settingsButton);
-
-        Configure(consoleButton, "Консоль", 322, 394, 110, 38);
-        consoleButton.Click += (_, _) => OpenConsole();
-        background.Controls.Add(consoleButton);
-
-        Configure(networkButton, "СЕТЬ", 440, 394, 96, 38);
-        networkButton.Click += (_, _) => OpenNetwork();
-        background.Controls.Add(networkButton);
-
-        // правая колонка — карточки
-        cardStatus.Title = "Состояние";
-        cardStatus.Body = "Проверяю...";
-        cardStatus.Bounds = new Rectangle(786, 112, 236, 132);
-        background.Controls.Add(cardStatus);
-
-        cardPromo.Title = "Проект";
-        cardPromo.Body = "Мод и лаунчер в одном setup.\r\n\r\nВышедшая версия — 1.1.0.\r\n\r\ngithub.com/vladis23445-ux/\r\nAurora-Launcher";
-        cardPromo.Accent = Theme.Accent2;
-        cardPromo.Bounds = new Rectangle(786, 258, 236, 166);
-        background.Controls.Add(cardPromo);
-
-        cardBuild.Title = "Сборка";
-        cardBuild.Body = $"Лаунчер {LauncherVersion}\r\nMinecraft {Meta.GameVersion}\r\nFabric {Meta.FabricLoader} · Java 21\r\nRAM: {config.RamMb} МБ";
-        cardBuild.Accent = Theme.Mint;
-        cardBuild.Bounds = new Rectangle(786, 438, 236, 126);
-        background.Controls.Add(cardBuild);
-
-        // нижняя полоса — как начать
-        cardStart.Title = "Как начать";
-        cardStart.Body = "1 · Нажмите «УСТАНОВИТЬ» — скачаются Minecraft, Fabric и мод Aurora\r\n" +
-                         "2 · Создайте аккаунт: вход не нужен, профиль хранится локально\r\n" +
-                         "3 · «ИГРАТЬ» — мод запустится вместе с игрой, RSHIFT открывает меню";
-        cardStart.Accent = Theme.Accent2;
-        cardStart.Bounds = new Rectangle(58, 452, 700, 112);
-        background.Controls.Add(cardStart);
-
-        footerLabel.Text = "Aurora Visuals · мод и лаунчер в одном setup · github.com/vladis23445-ux/Aurora-Launcher";
-        footerLabel.Bounds = new Rectangle(58, 578, 764, 16);
-        footerLabel.ForeColor = Color.FromArgb(110, Theme.Text);
-        footerLabel.BackColor = Color.Transparent;
-        footerLabel.Font = Theme.FontSmall;
-        background.Controls.Add(footerLabel);
+            case "play":
+                await RunLaunchAsync();
+                break;
+            case "install":
+                await RunInstallAsync();
+                break;
+            case "accounts":
+                OpenAccounts();
+                break;
+            case "settings":
+                OpenSettings();
+                break;
+            case "console":
+                OpenConsole();
+                break;
+            case "network":
+                OpenNetwork();
+                break;
+            case "chip":
+                OpenAccounts();
+                break;
+            case "min":
+                WindowState = FormWindowState.Minimized;
+                break;
+            case "close":
+                Close();
+                break;
+        }
     }
 
     private static string LauncherVersion
@@ -235,11 +116,6 @@ public sealed class MainForm : Form
             return version == null ? "1.1.0" : $"{version.Major}.{version.Minor}.{Math.Max(version.Build, 0)}";
         }
     }
-    private static void Configure(Control control, string text, int x, int y, int w, int h)
-    {
-        control.Text = text;
-        control.Bounds = new Rectangle(x, y, w, h);
-    }
 
     // ---------------------------------------------------------------- state
 
@@ -248,7 +124,8 @@ public sealed class MainForm : Form
         current = config.Accounts.FirstOrDefault(a => a.Name == config.SelectedAccount)
                   ?? config.Accounts.FirstOrDefault();
         config.SelectedAccount = current?.Name;
-        accountChip.Text = current == null ? "создать аккаунт" : current.Name;
+        surface.AccountName = current == null ? "создать аккаунт" : current.Name;
+        surface.Invalidate();
     }
 
     private void RefreshHeroState()
@@ -261,18 +138,17 @@ public sealed class MainForm : Form
             mods = Directory.GetFiles(modsDir, "*.jar").Length;
         }
 
-        heroState.Text = installed
-            ? $"Установлен профиль {config.VersionId}   ·   модов в папке: {mods}"
+        surface.StateOk = installed;
+        surface.StateText = installed
+            ? $"Профиль {Meta.GameVersion} · Fabric {Meta.FabricLoader} · модов: {mods}"
             : "Не установлено — нажмите «УСТАНОВИТЬ»";
-        heroState.ForeColor = installed
-            ? Color.FromArgb(205, Theme.Accent2)
-            : Color.FromArgb(255, 255, 196, 92);
 
-        cardStatus.Body = installed
+        surface.CardStatusBody = installed
             ? $"Профиль: Fabric {Meta.FabricLoader}\r\nВерсия: {Meta.GameVersion}\r\nМодов: {mods} · RAM: {config.RamMb} МБ\r\nОкно: {config.WindowWidth}×{config.WindowHeight}"
             : "Игра не установлена.\r\nНажмите «УСТАНОВИТЬ» — лаунчер скачает\r\nMinecraft, Fabric и мод.";
 
-        cardBuild.Body = $"Лаунчер {LauncherVersion}\r\nMinecraft {Meta.GameVersion}\r\nFabric {Meta.FabricLoader} · Java 21\r\nRAM: {config.RamMb} МБ";
+        surface.CardBuildBody = $"Лаунчер {LauncherVersion}\r\nMinecraft {Meta.GameVersion}\r\nFabric {Meta.FabricLoader} · Java 21\r\nRAM: {config.RamMb} МБ";
+        surface.Invalidate();
     }
 
     private void OpenSettings()
@@ -307,18 +183,26 @@ public sealed class MainForm : Form
 
     // ---------------------------------------------------------------- actions
 
+    private void SetProgress(int value)
+    {
+        surface.Progress = Math.Clamp(value, 0, 100);
+        surface.Invalidate();
+    }
+
+    private void SetStatus(string text, Color color)
+    {
+        surface.StatusText = text;
+        surface.StatusColor = color;
+        surface.Invalidate();
+    }
+
     private void SetBusy(bool value, string status)
     {
         busy = value;
-        playButton.Enabled = !value;
-        installButton.Enabled = !value;
-        settingsButton.Enabled = !value;
-        accountsButton.Enabled = !value;
-        statusLabel.Text = status;
-        if (!value)
-        {
-            progressBar.Value = 0;
-        }
+        surface.Busy = value;
+        surface.RefreshState();
+        SetProgress(value ? surface.Progress : 0);
+        SetStatus(status, Theme.Subtle);
         UseWaitCursor = value;
     }
 
@@ -334,7 +218,7 @@ public sealed class MainForm : Form
         SetBusy(true, "Установка...");
 
         var log = new Progress<string>(text => AppendLog(text));
-        var progress = new Progress<double>(p => progressBar.Value = (int)p);
+        var progress = new Progress<double>(p => SetProgress((int)p));
 
         try
         {
@@ -346,7 +230,7 @@ public sealed class MainForm : Form
             await Installer.InstallFabricAsync(config, log, progress, cts.Token);
             await Installer.InstallModsAsync(config, java, log, progress, cts.Token);
 
-            progressBar.Value = 100;
+            SetProgress(100);
             SetBusy(false, "Установлено — можно играть");
             RefreshHeroState();
             AppendLog("=== УСТАНОВКА ЗАВЕРШЕНА ===", LogKind.Ok);
@@ -401,7 +285,7 @@ public sealed class MainForm : Form
         cts = new CancellationTokenSource();
         SetBusy(true, "Подготовка Java...");
         var log = new Progress<string>(text => AppendLog(text));
-        var progress = new Progress<double>(p => progressBar.Value = (int)p);
+        var progress = new Progress<double>(p => SetProgress((int)p));
 
         try
         {
@@ -413,7 +297,7 @@ public sealed class MainForm : Form
             AppendLog("Процесс запущен, PID " + process.Id, LogKind.Ok);
             rpc.SetPlaying(true);
             SetBusy(false, "Игра запущена");
-            progressBar.Value = 100;
+            SetProgress(100);
 
             if (config.CloseOnLaunch)
             {
@@ -482,8 +366,7 @@ public sealed class MainForm : Form
 
         if (kind is LogKind.Warn or LogKind.Error)
         {
-            statusLabel.Text = text;
-            statusLabel.ForeColor = color;
+            SetStatus(text, color);
         }
     }
 
