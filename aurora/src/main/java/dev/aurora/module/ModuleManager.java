@@ -14,6 +14,7 @@ import dev.aurora.modules.HitParticles;
 import dev.aurora.modules.JumpCircles;
 import dev.aurora.modules.HeldShader;
 import dev.aurora.modules.ItemEsp;
+import dev.aurora.modules.KillAura;
 import dev.aurora.modules.KillEffects;
 import dev.aurora.modules.ItemSwitch;
 import dev.aurora.modules.Keystrokes;
@@ -52,6 +53,7 @@ public final class ModuleManager {
         register(new FlatItems(bus));
         register(new ItemEsp(bus));
         register(new HeldShader(bus));
+        register(new KillAura(bus));
         register(new KillEffects(bus));
         register(new WorldParticles(bus));
         register(new HitParticles(bus));
