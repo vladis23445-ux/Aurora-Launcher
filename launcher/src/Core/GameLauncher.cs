@@ -126,6 +126,22 @@ public static class GameLauncher
                                     || a.StartsWith("-Xms", StringComparison.OrdinalIgnoreCase));
         jvmArguments.Add($"-Xmx{config.RamMb}M");
         jvmArguments.Add($"-Xms{Math.Min(config.RamMb, 2048)}M");
+
+        var build = Builds.Get(config.Build);
+        log.Report($"Сборка: {build.Name}");
+        foreach (var flag in build.JvmArgs)
+        {
+            jvmArguments.Add(flag);
+        }
+        log.Report(build.JvmArgs.Length > 0
+            ? "Флаги сборки: " + string.Join(" ", build.JvmArgs)
+            : "Сборка без дополнительных флагов JVM");
+
+        if (build.TuneGameOptions)
+        {
+            log.Report(Builds.ApplyGameOptions(config.GameDir));
+        }
+
         if (!string.IsNullOrWhiteSpace(config.ExtraJvm))
         {
             jvmArguments.AddRange(SplitArguments(config.ExtraJvm));

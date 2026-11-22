@@ -45,6 +45,8 @@ internal sealed class AuroraSurface : Control
     public string StatusText { get; set; } = "Готово";
     public Color StatusColor { get; set; } = Theme.Subtle;
     public string AccountName { get; set; } = "аккаунт";
+    public string BuildId { get; set; } = "standard";
+    public string BuildSummary { get; set; } = "";
     public string Footer { get; set; } = "";
     public int Progress { get; set; }
     public bool Busy { get; set; }
@@ -103,6 +105,8 @@ internal sealed class AuroraSurface : Control
         zones.Add(new Zone { Id = "settings", Bounds = new Rectangle(224, 382, 152, 36), Kind = ButtonKind.Ghost, Enabled = !Busy });
         zones.Add(new Zone { Id = "console", Bounds = new Rectangle(56, 426, 152, 36), Kind = ButtonKind.Ghost });
         zones.Add(new Zone { Id = "network", Bounds = new Rectangle(224, 426, 152, 36), Kind = ButtonKind.Ghost });
+        zones.Add(new Zone { Id = "build-standard", Bounds = new Rectangle(56, 496, 150, 34), Kind = ButtonKind.Ghost, Enabled = !Busy });
+        zones.Add(new Zone { Id = "build-optimized", Bounds = new Rectangle(214, 496, 162, 34), Kind = ButtonKind.Ghost, Enabled = !Busy });
 
         int center = Width / 2;
         zones.Add(new Zone { Id = "chip", Bounds = new Rectangle(center - 105, 21, 210, 32), Kind = ButtonKind.Chip });
@@ -360,12 +364,20 @@ internal sealed class AuroraSurface : Control
                 case "network":
                     DrawGhost(g, zone, "СЕТЬ");
                     break;
+                case "build-standard":
+                    DrawPill(g, zone, "Стандарт", BuildId != "optimized");
+                    break;
+                case "build-optimized":
+                    DrawPill(g, zone, "Оптимизация", BuildId == "optimized");
+                    break;
             }
         }
 
         TextRenderer.DrawText(g, StateText, Theme.FontSmall, new Rectangle(56, 314, 340, 18),
             StateOk ? Color.FromArgb(215, Theme.Mint) : Color.FromArgb(255, 246, 190, 108),
             TextFormatFlags.Left | TextFormatFlags.NoPadding);
+
+        DrawBuildSection(g);
 
         var bar = ProgressBounds;
         Theme.Fill(g, bar, bar.Height / 2f, Color.FromArgb(24, 255, 255, 255));
@@ -428,6 +440,41 @@ internal sealed class AuroraSurface : Control
         Theme.Border(g, rect, 11f, Color.FromArgb(hover ? 120 : 40, Theme.Accent2));
         TextRenderer.DrawText(g, label, Theme.FontBold, zone.Bounds,
             zone.Enabled ? (hover ? Color.White : Theme.Text) : Color.FromArgb(110, Theme.Subtle),
+            TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+    }
+
+    private void DrawBuildSection(Graphics g)
+    {
+        TextRenderer.DrawText(g, "СБОРКА", Theme.FontCap, new Rectangle(56, 474, 200, 16),
+            Color.FromArgb(170, Theme.Subtle), TextFormatFlags.Left | TextFormatFlags.NoPadding);
+
+        if (!string.IsNullOrEmpty(BuildSummary))
+        {
+            TextRenderer.DrawText(g, BuildSummary, Theme.FontSmall, new Rectangle(56, 540, 344, 44),
+                Color.FromArgb(190, Theme.Subtle),
+                TextFormatFlags.Left | TextFormatFlags.WordBreak | TextFormatFlags.NoPadding);
+        }
+    }
+
+    private void DrawPill(Graphics g, Zone zone, string label, bool active)
+    {
+        bool hover = hoverId == zone.Id && zone.Enabled;
+        var rect = new RectangleF(zone.Bounds.X + 0.5f, zone.Bounds.Y + 0.5f,
+            zone.Bounds.Width - 1f, zone.Bounds.Height - 1f);
+
+        if (active)
+        {
+            Theme.FillGradient(g, rect, 12f, Theme.Alpha(Theme.Accent, 78), Theme.Alpha(Theme.Accent2, 62));
+            Theme.Border(g, rect, 12f, Color.FromArgb(180, Theme.Accent2));
+        }
+        else
+        {
+            Theme.Fill(g, rect, 12f, Color.FromArgb(zone.Enabled ? (hover ? 40 : 18) : 10, 255, 255, 255));
+            Theme.Border(g, rect, 12f, Color.FromArgb(hover ? 110 : 34, Theme.Accent2));
+        }
+
+        Color text = active ? Color.White : zone.Enabled ? Theme.Subtle : Color.FromArgb(110, Theme.Subtle);
+        TextRenderer.DrawText(g, label, Theme.FontBold, zone.Bounds, text,
             TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
     }
 

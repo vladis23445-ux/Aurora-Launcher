@@ -70,6 +70,8 @@ public sealed class MainForm : Form
         surface.Footer = "Aurora Visuals  ·  мод и лаунчер в одном setup  ·  github.com/vladis23445-ux/Aurora-Launcher";
         surface.CardPromoBody = "Мод и лаунчер в одном setup.\r\nВерсия 1.1.0\r\n\r\ngithub.com/vladis23445-ux/Aurora-Launcher";
         surface.CardStartBody = "1 · «УСТАНОВИТЬ» — Minecraft, Fabric и мод\r\n2 · Аккаунт локальный, вход не нужен\r\n3 · «ИГРАТЬ», меню мода — RSHIFT";
+        surface.BuildId = config.Build;
+        surface.BuildSummary = Builds.Get(config.Build).Summary;
         surface.Action += OnSurfaceAction;
         Controls.Add(surface);
     }
@@ -95,6 +97,12 @@ public sealed class MainForm : Form
                 break;
             case "network":
                 OpenNetwork();
+                break;
+            case "build-standard":
+                SetBuild(Builds.StandardId);
+                break;
+            case "build-optimized":
+                SetBuild(Builds.OptimizedId);
                 break;
             case "chip":
                 OpenAccounts();
@@ -147,8 +155,31 @@ public sealed class MainForm : Form
             ? $"Профиль: Fabric {Meta.FabricLoader}\r\nВерсия: {Meta.GameVersion}\r\nМодов: {mods} · RAM: {config.RamMb} МБ\r\nОкно: {config.WindowWidth}×{config.WindowHeight}"
             : "Игра не установлена.\r\nНажмите «УСТАНОВИТЬ» — лаунчер скачает\r\nMinecraft, Fabric и мод.";
 
-        surface.CardBuildBody = $"Лаунчер {LauncherVersion}\r\nMinecraft {Meta.GameVersion}\r\nFabric {Meta.FabricLoader} · Java 21\r\nRAM: {config.RamMb} МБ";
+        surface.CardBuildBody = $"Сборка: {Builds.Get(config.Build).Name}\r\nMinecraft {Meta.GameVersion} · Fabric {Meta.FabricLoader}\r\nЛаунчер {LauncherVersion} · Java 21\r\nRAM: {config.RamMb} МБ";
+        surface.BuildId = config.Build;
+        surface.BuildSummary = Builds.Get(config.Build).Summary;
         surface.Invalidate();
+    }
+
+    private void SetBuild(string id)
+    {
+        if (string.Equals(config.Build, id, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        config.Build = id;
+        config.Save();
+        var build = Builds.Get(id);
+        surface.BuildId = build.Id;
+        surface.BuildSummary = build.Summary;
+        RefreshHeroState();
+        SetStatus("Сборка: " + build.Name, Theme.Mint);
+        AppendLog("Выбрана сборка: " + build.Name, LogKind.Ok);
+        if (build.TuneGameOptions)
+        {
+            AppendLog("Перед запуском игры применится пресет графики (резервная копия: options.txt.before-optimization)");
+        }
     }
 
     private void OpenSettings()

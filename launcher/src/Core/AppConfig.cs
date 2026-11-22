@@ -26,6 +26,7 @@ public sealed class AppConfig
     public string ExtraJvm { get; set; } = "";
     public string ExtraGameArgs { get; set; } = "";
     public string VersionId { get; set; } = "fabric-loader-1.21.11-0.20.1";
+    public string Build { get; set; } = "standard";
     public bool CloseOnLaunch { get; set; } = true;
     public bool DiscordRpc { get; set; } = true;
     public string DiscordAppId { get; set; } = "1573457370288488568";
