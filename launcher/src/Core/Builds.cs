@@ -32,6 +32,7 @@ public static class Builds
         Summary = "Максимум FPS: G1GC, быстрый пресет графики (8 чанков, fast, без облаков).",
         JvmArgs = new[]
         {
+            "-XX:+UnlockExperimentalVMOptions",
             "-XX:+UseG1GC",
             "-XX:MaxGCPauseMillis=40",
             "-XX:G1NewSizePercent=27",
@@ -51,11 +52,12 @@ public static class Builds
 
     private static readonly (string Key, string Value)[] OptimizedOptions =
     {
+        ("graphicsPreset", "\"fast\""),
         ("renderDistance", "8"),
         ("simulationDistance", "6"),
-        ("graphicsMode", "fast"),
-        ("particles", "minimal"),
-        ("clouds", "false"),
+        ("particles", "2"),
+        ("renderClouds", "\"false\""),
+        ("cloudRange", "32"),
         ("entityShadows", "false"),
         ("mipmapLevels", "0"),
         ("biomeBlendRadius", "0"),
@@ -63,7 +65,6 @@ public static class Builds
         ("ao", "true"),
         ("maxFps", "260"),
         ("enableVsync", "false"),
-        ("fancyGraphics", "false"),
     };
 
     /// <summary>

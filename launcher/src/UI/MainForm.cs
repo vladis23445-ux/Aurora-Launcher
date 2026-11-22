@@ -324,6 +324,7 @@ public sealed class MainForm : Form
             config.JavaPath = java;
             SetBusy(true, "Запуск Minecraft...");
 
+            var startedAt = DateTime.UtcNow;
             var process = await GameLauncher.LaunchAsync(config, current, java, log, cts.Token);
             AppendLog("Процесс запущен, PID " + process.Id, LogKind.Ok);
             rpc.SetPlaying(true);
@@ -342,7 +343,16 @@ public sealed class MainForm : Form
                     await process.WaitForExitAsync();
                     BeginInvoke(() =>
                     {
-                        AppendLog("Игра закрыта (код " + process.ExitCode + ")");
+                        long lived = (long)(DateTime.UtcNow - startedAt).TotalMilliseconds;
+                        bool crashed = lived < 15000;
+                        AppendLog(crashed
+                            ? $"Игра завершилась через {lived / 1000.0:0.0} с (код {process.ExitCode}) — причина в выводе Java выше"
+                            : "Игра закрыта (код " + process.ExitCode + ")",
+                            crashed ? LogKind.Error : LogKind.Info);
+                        if (crashed)
+                        {
+                            SetStatus("Игра не запустилась — смотрите консоль", Theme.Danger);
+                        }
                         rpc.SetPlaying(false);
                         Show();
                         WindowState = FormWindowState.Normal;
