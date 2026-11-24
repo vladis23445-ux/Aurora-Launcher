@@ -22,6 +22,7 @@ internal sealed class AuroraSurface : Control
         Ghost,
         Chip,
         Glyph,
+        Card,
     }
 
     private readonly List<Zone> zones = new();
@@ -47,6 +48,7 @@ internal sealed class AuroraSurface : Control
     public string AccountName { get; set; } = "аккаунт";
     public string BuildId { get; set; } = "standard";
     public string BuildSummary { get; set; } = "";
+    public int Coins { get; set; }
     public string Footer { get; set; } = "";
     public int Progress { get; set; }
     public bool Busy { get; set; }
@@ -111,6 +113,8 @@ internal sealed class AuroraSurface : Control
         int center = Width / 2;
         zones.Add(new Zone { Id = "chip", Bounds = new Rectangle(center - 105, 21, 210, 32), Kind = ButtonKind.Chip });
         zones.Add(new Zone { Id = "min", Bounds = new Rectangle(Width - 88, 23, 30, 30), Kind = ButtonKind.Glyph });
+        zones.Add(new Zone { Id = "coins", Bounds = new Rectangle(Width - 330, 21, 190, 32), Kind = ButtonKind.Chip });
+        zones.Add(new Zone { Id = "money", Bounds = new Rectangle(720, 492, 304, 100), Kind = ButtonKind.Card });
         zones.Add(new Zone { Id = "close", Bounds = new Rectangle(Width - 52, 23, 30, 30), Kind = ButtonKind.Glyph });
     }
 
@@ -302,6 +306,9 @@ internal sealed class AuroraSurface : Control
                 case "close":
                     DrawGlyph(g, zone, "✕");
                     break;
+                case "coins":
+                    DrawCoins(g, zone);
+                    break;
             }
         }
     }
@@ -316,6 +323,42 @@ internal sealed class AuroraSurface : Control
         TextRenderer.DrawText(g, AccountName, Theme.FontBold, rect,
             hover ? Color.White : Theme.Text,
             TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter);
+    }
+
+    private void DrawCoins(Graphics g, Zone zone)
+    {
+        bool hover = hoverId == zone.Id;
+        var rect = new RectangleF(zone.Bounds.X + 0.5f, zone.Bounds.Y + 0.5f,
+            zone.Bounds.Width - 1f, zone.Bounds.Height - 1f);
+        Theme.Fill(g, rect, 16f, Color.FromArgb(hover ? 46 : 24, 255, 214, 120));
+        Theme.Border(g, rect, 16f, Color.FromArgb(hover ? 190 : 90, 255, 208, 110));
+
+        float cx = zone.Bounds.X + 22;
+        float cy = zone.Bounds.Y + zone.Bounds.Height / 2f;
+        using (var brush = new SolidBrush(Color.FromArgb(255, 226, 132)))
+        {
+            g.FillEllipse(brush, cx - 7, cy - 7, 14, 14);
+        }
+        using (var pen = new Pen(Color.FromArgb(170, 150, 96), 1f))
+        {
+            g.DrawEllipse(pen, cx - 7, cy - 7, 14, 14);
+        }
+        using (var font = new Font("Segoe UI", 7.5f, FontStyle.Bold))
+        {
+            TextRenderer.DrawText(g, "A", font, new Rectangle((int)cx - 7, (int)cy - 7, 14, 14),
+                Color.FromArgb(110, 70, 20),
+                TextFormatFlags.HorizontalCenter | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+        }
+
+        TextRenderer.DrawText(g, Coins.ToString(), Theme.FontBold,
+            new Rectangle(zone.Bounds.X + 36, zone.Bounds.Y, 70, zone.Bounds.Height),
+            Color.FromArgb(255, 240, 200),
+            TextFormatFlags.Left | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
+
+        TextRenderer.DrawText(g, "КОСМЕТИКА", Theme.FontCap,
+            new Rectangle(zone.Bounds.Right - 100, zone.Bounds.Y, 88, zone.Bounds.Height),
+            Color.FromArgb(190, 255, 214, 140),
+            TextFormatFlags.Right | TextFormatFlags.VerticalCenter | TextFormatFlags.NoPadding);
     }
 
     private void DrawGlyph(Graphics g, Zone zone, string glyph)
@@ -483,14 +526,16 @@ internal sealed class AuroraSurface : Control
         DrawCard(g, new Rectangle(720, 100, 304, 118), CardStatusTitle, CardStatusBody, Theme.Accent2);
         DrawCard(g, new Rectangle(720, 228, 304, 108), CardBuildTitle, CardBuildBody, Theme.Accent);
         DrawCard(g, new Rectangle(720, 348, 304, 132), CardPromoTitle, CardPromoBody, Theme.Mint);
-        DrawCard(g, new Rectangle(720, 492, 304, 100), CardStartTitle, CardStartBody, Theme.Good);
+        DrawCard(g, new Rectangle(720, 492, 304, 100), CardStartTitle, CardStartBody, Theme.Good,
+            hoverId == "money");
     }
 
-    private static void DrawCard(Graphics g, Rectangle bounds, string title, string body, Color accent)
+    private static void DrawCard(Graphics g, Rectangle bounds, string title, string body, Color accent,
+        bool hover = false)
     {
         var rect = new RectangleF(bounds.X + 0.5f, bounds.Y + 0.5f, bounds.Width - 1f, bounds.Height - 1f);
         Theme.Fill(g, rect, 15f, Color.FromArgb(228, 20, 22, 36));
-        Theme.Border(g, rect, 15f, Color.FromArgb(30, 255, 255, 255));
+        Theme.Border(g, rect, 15f, hover ? Color.FromArgb(140, Theme.Accent2) : Color.FromArgb(30, 255, 255, 255));
 
         using (var top = new LinearGradientBrush(
                    new RectangleF(rect.X, rect.Y, rect.Width, 26f),

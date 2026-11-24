@@ -8,6 +8,7 @@ import dev.aurora.modules.BlockHighlight;
 import dev.aurora.modules.FlatItems;
 import dev.aurora.modules.Fullbright;
 import dev.aurora.modules.Zoom;
+import dev.aurora.modules.CosmeticsRender;
 import dev.aurora.modules.CustomHand;
 import dev.aurora.modules.DamageNumbers;
 import dev.aurora.modules.HitParticles;
@@ -58,6 +59,7 @@ public final class ModuleManager {
         register(new WorldParticles(bus));
         register(new HitParticles(bus));
         register(new ItemSwitch(bus));
+        register(new CosmeticsRender(bus));
         register(new CustomHand(bus));
         register(new DamageNumbers(bus));
         register(new JumpCircles(bus));

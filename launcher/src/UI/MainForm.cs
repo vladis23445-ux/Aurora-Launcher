@@ -11,6 +11,8 @@ public sealed class MainForm : Form
     private readonly AppConfig config;
     private readonly DiscordRpc rpc;
     private readonly AuroraSurface surface = new();
+    private readonly System.Windows.Forms.Timer profileTimer = new() { Interval = 2000 };
+    private ProfileData profile = new();
 
     private ConsoleForm? consoleForm;
     private CancellationTokenSource? cts;
@@ -49,6 +51,10 @@ public sealed class MainForm : Form
         BuildUi();
         RefreshAccount();
         RefreshHeroState();
+        RefreshProfile();
+
+        profileTimer.Tick += (_, _) => RefreshProfile();
+        profileTimer.Start();
 
         rpc.SetAppId(config.DiscordAppId);
         rpc.Enabled = config.DiscordRpc;
@@ -68,8 +74,8 @@ public sealed class MainForm : Form
         surface.Title = "Aurora Visuals";
         surface.Subtitle = $"Fabric {Meta.FabricLoader}   ·   Java 21   ·   визуальный клиент";
         surface.Footer = "Aurora Visuals  ·  мод и лаунчер в одном setup  ·  github.com/vladis23445-ux/Aurora-Launcher";
-        surface.CardPromoBody = "Мод и лаунчер в одном setup.\r\nВерсия 1.1.0\r\n\r\ngithub.com/vladis23445-ux/Aurora-Launcher";
-        surface.CardStartBody = "1 · «УСТАНОВИТЬ» — Minecraft, Fabric и мод\r\n2 · Аккаунт локальный, вход не нужен\r\n3 · «ИГРАТЬ», меню мода — RSHIFT";
+        surface.CardPromoBody = "Мод и лаунчер в одном setup.\r\nВерсия 1.2.0\r\n\r\ngithub.com/vladis23445-ux/Aurora-Launcher";
+        surface.CardStartTitle = "Монеты";
         surface.BuildId = config.Build;
         surface.BuildSummary = Builds.Get(config.Build).Summary;
         surface.Action += OnSurfaceAction;
@@ -107,6 +113,10 @@ public sealed class MainForm : Form
             case "chip":
                 OpenAccounts();
                 break;
+            case "coins":
+            case "money":
+                OpenCosmetics();
+                break;
             case "min":
                 WindowState = FormWindowState.Minimized;
                 break;
@@ -121,7 +131,7 @@ public sealed class MainForm : Form
         get
         {
             var version = Assembly.GetExecutingAssembly().GetName().Version;
-            return version == null ? "1.1.0" : $"{version.Major}.{version.Minor}.{Math.Max(version.Build, 0)}";
+            return version == null ? "1.2.0" : $"{version.Major}.{version.Minor}.{Math.Max(version.Build, 0)}";
         }
     }
 
@@ -194,6 +204,30 @@ public sealed class MainForm : Form
         using var form = new AccountsForm(config);
         form.ShowDialog(this);
         RefreshAccount();
+    }
+
+    private void OpenCosmetics()
+    {
+        profile = Profile.Load();
+        using var form = new CosmeticsForm(profile);
+        form.ShowDialog(this);
+        RefreshProfile();
+    }
+
+    /// <summary>Монеты и прогресс заданий подтягиваются из общего profile.json.</summary>
+    private void RefreshProfile()
+    {
+        profile = Profile.Load();
+        surface.Coins = profile.Coins;
+
+        var next = Quests.NextQuest(profile);
+        int done = Quests.ClaimedCount(profile);
+
+        surface.CardStartBody = next == null
+            ? $"Баланс: {profile.Coins} монет\r\nЗаданий: {done} из {Quests.All.Count}\r\nВсе задания выполнены"
+            : $"Баланс: {profile.Coins} монет\r\nЗаданий: {done} из {Quests.All.Count}\r\nБлижайшее: +{next.Reward} · {next.Title}";
+
+        surface.Invalidate();
     }
 
     private void OpenNetwork()
@@ -413,6 +447,8 @@ public sealed class MainForm : Form
 
     protected override void OnFormClosing(FormClosingEventArgs e)
     {
+        profileTimer.Stop();
+        profileTimer.Dispose();
         config.Save();
         rpc.Dispose();
         base.OnFormClosing(e);

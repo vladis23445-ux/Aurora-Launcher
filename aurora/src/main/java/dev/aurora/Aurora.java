@@ -6,12 +6,15 @@ import dev.aurora.event.Events;
 import dev.aurora.module.Module;
 import dev.aurora.module.ModuleManager;
 import dev.aurora.ui.ClickGuiScreen;
+import dev.aurora.util.QuestTracker;
 import dev.aurora.ui.ScreenStyler;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.ActionResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,10 +66,18 @@ public final class Aurora implements ClientModInitializer {
 
         ScreenStyler.init();
 
+        UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {
+            if (world.isClient() && player == MinecraftClient.getInstance().player) {
+                QuestTracker.onBlockPlaced(player, hand);
+            }
+            return ActionResult.PASS;
+        });
+
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
             bus.post(new Events.Tick());
             pollKeys(client);
             modules.onTick();
+            QuestTracker.tick(client);
         });
 
         LOGGER.info("{} loaded: {} modules", NAME, modules.getModules().size());

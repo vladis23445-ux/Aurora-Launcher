@@ -3,6 +3,7 @@ package dev.aurora.mixin;
 import dev.aurora.Aurora;
 import dev.aurora.event.Events;
 import dev.aurora.modules.KillEffects;
+import dev.aurora.util.QuestTracker;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -12,8 +13,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * Р”Р°РЅРЅС‹Рµ РґР»СЏ Damage Numbers (РґРµР»СЊС‚Р° Р·РґРѕСЂРѕРІСЊСЏ) Рё Jump Circles.
- * setHealth РІС‹Р·С‹РІР°РµС‚СЃСЏ Рё РїСЂРё СѓСЂРѕРЅРµ, Рё РїСЂРё Р»РµС‡РµРЅРёРё вЂ” РѕРґРЅРѕРіРѕ С…СѓРєР° С…РІР°С‚Р°РµС‚.
+ * Данные для Damage Numbers (дельта здоровья) и Jump Circles.
+ * setHealth вызывается и при уроне, и при лечении — одного хука хватает.
  */
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin {
@@ -55,6 +56,7 @@ public abstract class LivingEntityMixin {
             return;
         }
         KillEffects.onEntityDeath(new net.minecraft.util.math.Vec3d(self.getX(), self.getY(), self.getZ()));
+        QuestTracker.onKill();
     }
 
     @Inject(method = "jump", at = @At("HEAD"))
@@ -69,6 +71,7 @@ public abstract class LivingEntityMixin {
         }
         try {
             Aurora.get().getBus().post(new Events.Jump(new net.minecraft.util.math.Vec3d(self.getX(), self.getY(), self.getZ())));
+            QuestTracker.onJump();
         } catch (Throwable ignored) {
         }
     }
