@@ -11,6 +11,7 @@ import dev.aurora.module.setting.NumberSetting;
 import dev.aurora.module.setting.Setting;
 import dev.aurora.render.Animation;
 import dev.aurora.render.ColorUtil;
+import dev.aurora.ui.Palette;
 import dev.aurora.render.Render2D;
 import net.minecraft.client.gui.Click;
 import net.minecraft.client.gui.DrawContext;
@@ -46,9 +47,6 @@ public class ClickGuiScreen extends Screen {
     private static final int STROKE = 0x229CFFD6;
     private static final int TEXT = 0xFFE9F9F0;
     private static final int SUBTLE = 0xFF8AAAA0;
-    private static final int ACCENT = 0xFF3BE8A0;
-    private static final int ACCENT2 = 0xFF40D6D6;
-    private static final int MINT = 0xFF8CFFC8;
 
     private final Animation open = new Animation(0f, 9f);
     private final Map<Module, Animation> switches = new IdentityHashMap<>();
@@ -161,13 +159,41 @@ public class ClickGuiScreen extends Screen {
             Render2D.textCentered(context, "нажми клавишу", W / 2f, y + H - 34f, TEXT);
         }
 
+        // заставка: логотип вплывает и растворяется
+        float intro = Math.min(1f, progress / 0.3f);
+        if (intro < 1f) {
+            float fade = 1f - intro;
+            float scale = 1.75f - 0.75f * Animation.easeOutCubic(intro);
+            float cx = W / 2f;
+            float cy = y + H / 2f;
+            matrices.pushMatrix();
+            matrices.translate(cx, cy);
+            matrices.scale(scale, scale);
+            matrices.translate(-cx, -cy);
+            Render2D.textCentered(context, "AURORA", cx, cy - 9f, ColorUtil.withAlpha(0xFFFFFFFF, fade));
+            Render2D.textCentered(context, "V I S U A L S", cx, cy + 5f,
+                    ColorUtil.withAlpha(Palette.accent(), fade * 0.9f));
+            matrices.popMatrix();
+        }
+
         matrices.popMatrix();
     }
 
     private void drawHeader(DrawContext context, float y, float eased) {
         Render2D.roundedGradient(context, PAD, y + 8f, 16f, 16f, 5f,
-                ColorUtil.withAlpha(ACCENT, eased), ColorUtil.withAlpha(ACCENT2, eased));
+                ColorUtil.withAlpha(Palette.accent(), eased), ColorUtil.withAlpha(Palette.accent2(), eased));
         Render2D.text(context, "AURORA", PAD + 22f, y + 10f, ColorUtil.withAlpha(TEXT, eased));
+
+        float themeX = PAD + 22f + Render2D.textWidth("AURORA") + 12f;
+        String themeLabel = "тема · " + Palette.current().title();
+        float themeW = Render2D.textWidth(themeLabel) + 12f;
+        Render2D.roundedRect(context, themeX, y + 7f, themeW, 16f, 8f,
+                ColorUtil.withAlpha(0xFFFFFF, 0.06f * eased));
+        Render2D.roundedBorder(context, themeX, y + 7f, themeW, 16f, 8f, 1f,
+                ColorUtil.withAlpha(Palette.accent2(), 0.35f * eased));
+        Render2D.text(context, themeLabel, themeX + 6f, y + 10f,
+                ColorUtil.withAlpha(Palette.mint(), 0.92f * eased));
+        hitboxes.add(new Hitbox(themeX - 2f, y + 6f, themeW + 4f, 18f, Palette::next));
 
         String cfg = Aurora.get().getConfig().current();
         Render2D.text(context, cfg, W - PAD - Render2D.textWidth(cfg), y + 10f,
@@ -185,10 +211,10 @@ public class ClickGuiScreen extends Screen {
             boolean hovered = inside(mouseX, mouseY, tx, ty, tabW, TABS - 4f);
 
             Render2D.roundedRect(context, tx, ty, tabW, TABS - 4f, 5f,
-                    ColorUtil.withAlpha(active ? ACCENT : 0xFFFFFF, (active ? 0.18f : hovered ? 0.07f : 0.03f) * eased));
+                    ColorUtil.withAlpha(active ? Palette.accent() : 0xFFFFFF, (active ? 0.18f : hovered ? 0.07f : 0.03f) * eased));
             if (active) {
                 Render2D.roundedBorder(context, tx, ty, tabW, TABS - 4f, 5f, 1f,
-                        ColorUtil.withAlpha(ACCENT, 0.45f * eased));
+                        ColorUtil.withAlpha(Palette.accent(), 0.45f * eased));
             }
             Render2D.textCentered(context, labels[i], tx + tabW / 2f, ty + 4f,
                     ColorUtil.withAlpha(active ? TEXT : SUBTLE, eased));
@@ -246,7 +272,7 @@ public class ClickGuiScreen extends Screen {
             }
 
             Render2D.circle(context, PAD + 7f, rowY + (ROW - 2f) / 2f, 2.2f,
-                    ColorUtil.withAlpha(on > 0.5f ? ACCENT : SUBTLE, (0.4f + 0.6f * on) * eased));
+                    ColorUtil.withAlpha(on > 0.5f ? Palette.accent() : SUBTLE, (0.4f + 0.6f * on) * eased));
             Render2D.text(context, module.getName(), PAD + 15f, rowY + 6f,
                     ColorUtil.withAlpha(on > 0.5f ? TEXT : SUBTLE, eased));
 
@@ -257,13 +283,13 @@ public class ClickGuiScreen extends Screen {
                     ColorUtil.withAlpha(0xFFFFFF, 0.08f * eased));
             if (on > 0.02f) {
                 Render2D.roundedGradient(context, toggleX, toggleY, toggleW, 10f, 5f,
-                        ColorUtil.withAlpha(ACCENT, on * eased), ColorUtil.withAlpha(ACCENT2, on * eased));
+                        ColorUtil.withAlpha(Palette.accent(), on * eased), ColorUtil.withAlpha(Palette.accent2(), on * eased));
             }
             Render2D.circle(context, toggleX + 2f + on * (toggleW - 10f) + 4f, toggleY + 5f, 3.4f,
                     ColorUtil.withAlpha(0xFFFFFF, 0.9f * eased));
 
             Render2D.text(context, "›", W - PAD - 12f, rowY + 5f,
-                    ColorUtil.withAlpha(hovered ? ACCENT2 : SUBTLE, 0.8f * eased));
+                    ColorUtil.withAlpha(hovered ? Palette.accent2() : SUBTLE, 0.8f * eased));
 
             hitboxes.add(new Hitbox(PAD, rowY, W - PAD * 2f - 24f, ROW - 2f, () -> {
                 if (currentButton == 1) {
@@ -284,7 +310,7 @@ public class ClickGuiScreen extends Screen {
         float bottom = y + H - PAD;
 
         // назад
-        Render2D.text(context, "‹", PAD, top + 4f, ColorUtil.withAlpha(ACCENT, eased));
+        Render2D.text(context, "‹", PAD, top + 4f, ColorUtil.withAlpha(Palette.accent(), eased));
         hitboxes.add(new Hitbox(PAD - 2f, top, 16f, 16f, () -> {
             settingsPage = false;
             settingsScroll = 0f;
@@ -351,7 +377,7 @@ public class ClickGuiScreen extends Screen {
 
             if (current || hovered) {
                 Render2D.roundedRect(context, PAD, rowY, W - PAD * 2f, ROW - 2f, 6f,
-                        ColorUtil.withAlpha(current ? ACCENT : 0xFFFFFF, (current ? 0.14f : 0.05f) * eased));
+                        ColorUtil.withAlpha(current ? Palette.accent() : 0xFFFFFF, (current ? 0.14f : 0.05f) * eased));
             }
             Render2D.text(context, name, PAD + 8f, rowY + 6f,
                     ColorUtil.withAlpha(current ? TEXT : SUBTLE, eased));
@@ -369,7 +395,7 @@ public class ClickGuiScreen extends Screen {
         float btnY = bottom - 22f;
         float btnW = (W - PAD * 2f - 8f) / 2f;
         Render2D.roundedRect(context, PAD, btnY, btnW, 18f, 5f, ColorUtil.withAlpha(0xFFFFFF, 0.06f));
-        Render2D.textCentered(context, "＋ Новый", PAD + btnW / 2f, btnY + 5f, ColorUtil.withAlpha(ACCENT, eased));
+        Render2D.textCentered(context, "＋ Новый", PAD + btnW / 2f, btnY + 5f, ColorUtil.withAlpha(Palette.accent(), eased));
         hitboxes.add(new Hitbox(PAD, btnY, btnW, 18f, () -> {
             Aurora.get().getConfig().createNew();
             refreshConfigs();
@@ -377,7 +403,7 @@ public class ClickGuiScreen extends Screen {
 
         Render2D.roundedRect(context, PAD + btnW + 8f, btnY, btnW, 18f, 5f, ColorUtil.withAlpha(0xFFFFFF, 0.06f));
         Render2D.textCentered(context, "Сохранить", PAD + btnW + 8f + btnW / 2f, btnY + 5f,
-                ColorUtil.withAlpha(ACCENT, eased));
+                ColorUtil.withAlpha(Palette.accent(), eased));
         hitboxes.add(new Hitbox(PAD + btnW + 8f, btnY, btnW, 18f, () -> {
             Aurora.get().getConfig().save();
             refreshConfigs();
@@ -394,7 +420,7 @@ public class ClickGuiScreen extends Screen {
         float thumbH = Math.max(14f, trackH * visible / content);
         float thumbY = top + (trackH - thumbH) * (offset / Math.max(1f, content - visible));
         Render2D.roundedRect(context, x, top, 1.5f, trackH, 0.75f, ColorUtil.withAlpha(0xFFFFFF, 0.05f * eased));
-        Render2D.roundedRect(context, x, thumbY, 1.5f, thumbH, 0.75f, ColorUtil.withAlpha(ACCENT, 0.5f * eased));
+        Render2D.roundedRect(context, x, thumbY, 1.5f, thumbH, 0.75f, ColorUtil.withAlpha(Palette.accent(), 0.5f * eased));
     }
 
     // -------------------------------------------------------------- настройки
@@ -409,7 +435,7 @@ public class ClickGuiScreen extends Screen {
         Render2D.roundedRect(context, tx, ty, toggleW, 10f, 5f, ColorUtil.withAlpha(0xFFFFFF, 0.08f * eased));
         if (on) {
             Render2D.roundedGradient(context, tx, ty, toggleW, 10f, 5f,
-                    ColorUtil.withAlpha(ACCENT, 0.9f * eased), ColorUtil.withAlpha(ACCENT2, 0.9f * eased));
+                    ColorUtil.withAlpha(Palette.accent(), 0.9f * eased), ColorUtil.withAlpha(Palette.accent2(), 0.9f * eased));
         }
         Render2D.circle(context, tx + 2f + (on ? toggleW - 10f : 0f) + 4f, ty + 5f, 3.4f,
                 ColorUtil.withAlpha(0xFFFFFF, 0.9f * eased));
@@ -425,7 +451,7 @@ public class ClickGuiScreen extends Screen {
         Render2D.text(context, setting.getName(), x + 6f, y, ColorUtil.withAlpha(TEXT, 0.9f * eased));
         String value = setting.getDisplay();
         Render2D.text(context, value, x + w - 6f - Render2D.textWidth(value), y,
-                ColorUtil.withAlpha(ACCENT2, 0.95f * eased));
+                ColorUtil.withAlpha(Palette.accent2(), 0.95f * eased));
 
         float trackY = y + 12f;
         float trackW = w - 12f;
@@ -433,7 +459,7 @@ public class ClickGuiScreen extends Screen {
         Render2D.roundedRect(context, trackX, trackY, trackW, 3f, 1.5f, ColorUtil.withAlpha(0xFFFFFF, 0.08f * eased));
         float fill = trackW * setting.getProgress();
         Render2D.roundedGradient(context, trackX, trackY, Math.max(1.5f, fill), 3f, 1.5f,
-                ColorUtil.withAlpha(ACCENT, 0.95f * eased), ColorUtil.withAlpha(ACCENT2, 0.95f * eased));
+                ColorUtil.withAlpha(Palette.accent(), 0.95f * eased), ColorUtil.withAlpha(Palette.accent2(), 0.95f * eased));
         Render2D.circle(context, trackX + fill, trackY + 1.5f, 3f, 0xFFEAF7F0);
 
         hitboxes.add(new Hitbox(trackX, y - 2f, trackW, 18f,
@@ -448,7 +474,7 @@ public class ClickGuiScreen extends Screen {
         float bw = Render2D.textWidth(value) + 12f;
         float bx = x + w - bw - 6f;
         Render2D.roundedRect(context, bx, y - 1f, bw, 13f, 6f, ColorUtil.withAlpha(0xFFFFFF, 0.06f * eased));
-        Render2D.textCentered(context, value, bx + bw / 2f, y + 2f, ColorUtil.withAlpha(ACCENT2, 0.95f * eased));
+        Render2D.textCentered(context, value, bx + bw / 2f, y + 2f, ColorUtil.withAlpha(Palette.accent2(), 0.95f * eased));
         hitboxes.add(new Hitbox(x, y - 2f, w, 16f, () -> {
             setting.cycle();
             Aurora.get().saveConfig();

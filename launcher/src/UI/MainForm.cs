@@ -22,6 +22,7 @@ public sealed class MainForm : Form
     public MainForm()
     {
         config = AppConfig.Load();
+        Theme.Apply(config.Theme);
         rpc = new DiscordRpc(text => AppendLog(text));
         BundledMod.Install(config, text => AppendLog(text));
         if (string.IsNullOrWhiteSpace(config.ModProjectDir))
@@ -196,6 +197,8 @@ public sealed class MainForm : Form
     {
         using var form = new SettingsForm(config);
         form.ShowDialog(this);
+        Theme.Apply(config.Theme);
+        surface.Invalidate();
         RefreshHeroState();
     }
 

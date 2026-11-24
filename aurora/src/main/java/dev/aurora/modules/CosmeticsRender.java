@@ -89,6 +89,10 @@ public class CosmeticsRender extends Module {
 
     private void draw(DrawContext ctx, PlayerEntity player, Cosmetic cape, Cosmetic crown,
                       float size, float tickDelta) {
+        // себя в первом лице не рисуем: плащ у нас за спиной и вылезает на весь экран
+        if (player == mc.player && mc.options.getPerspective().isFirstPerson()) {
+            return;
+        }
         Vec3d base = CameraUtil.lerped(player);
         float yaw = (float) Math.toRadians(player.getBodyYaw());
         Vec3d right = new Vec3d(Math.cos(yaw), 0.0, Math.sin(yaw));
@@ -194,6 +198,10 @@ public class CosmeticsRender extends Module {
         for (Vec3d corner : corners) {
             float[] projected = ScreenProjection.project(corner);
             if (projected == null) {
+                return null;
+            }
+            // слишком близко к камере — полигон раздувается на весь экран
+            if (projected[2] > 90f || Math.abs(projected[0]) > 6000f || Math.abs(projected[1]) > 6000f) {
                 return null;
             }
             points.add(projected);

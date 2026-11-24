@@ -32,6 +32,7 @@ public class KillAura extends Module {
     private final BooleanSetting mobs = register(new BooleanSetting("Mobs", true));
     private final BooleanSetting onlyVisible = register(new BooleanSetting("OnlyVisible", true));
     private final BooleanSetting swing = register(new BooleanSetting("Swing", true));
+    private final NumberSetting angle = register(new NumberSetting("Angle", 70, 20, 180, 5));
 
     private long lastAttack;
 
@@ -60,6 +61,9 @@ public class KillAura extends Module {
 
         LivingEntity target = findTarget();
         if (target == null) {
+            return;
+        }
+        if (!inFront(target)) {
             return;
         }
 
@@ -101,6 +105,25 @@ public class KillAura extends Module {
                 .filter(entity -> !visibleOnly || mc.player.canSee(entity))
                 .min(Comparator.comparingDouble(entity -> mc.player.squaredDistanceTo(entity)))
                 .orElse(null);
+    }
+
+    /** Бьём только то, что перед нами: угол между взглядом и целью не больше Angle. */
+    private boolean inFront(LivingEntity target) {
+        double maxAngle = Math.toRadians(angle.getValue());
+        if (maxAngle >= Math.PI - 0.01) {
+            return true;
+        }
+        net.minecraft.util.math.Vec3d eye = mc.player.getEyePos();
+        net.minecraft.util.math.Vec3d to = new net.minecraft.util.math.Vec3d(
+                target.getX() - eye.x,
+                target.getY() + target.getHeight() * 0.5 - eye.y,
+                target.getZ() - eye.z);
+        double length = to.length();
+        if (length < 0.001) {
+            return true;
+        }
+        double dot = mc.player.getRotationVec(1f).dotProduct(to.multiply(1.0 / length));
+        return dot >= Math.cos(maxAngle);
     }
 
     private boolean isValid(Entity entity, boolean allowPlayers, boolean allowMobs) {

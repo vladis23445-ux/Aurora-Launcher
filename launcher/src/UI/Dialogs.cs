@@ -89,6 +89,10 @@ internal abstract class DialogBase : Form
 internal sealed class SettingsForm : DialogBase
 {
     private readonly AppConfig config;
+    private string themeId = "violet";
+
+    private static string NameOf(string id) =>
+        Theme.Presets.FirstOrDefault(p => p.Id == id)?.Name ?? id;
 
     private readonly NumericUpDown ramBox = new();
     private readonly NumericUpDown widthBox = new();
@@ -102,7 +106,7 @@ internal sealed class SettingsForm : DialogBase
     private readonly CheckBox discordRpcBox = new();
     private readonly TextBox discordIdBox = new();
 
-    public SettingsForm(AppConfig config) : base("Настройки", 640, 600)
+    public SettingsForm(AppConfig config) : base("Настройки", 640, 668)
     {
         this.config = config;
 
@@ -177,11 +181,39 @@ internal sealed class SettingsForm : DialogBase
         Controls.Add(Caption("ДОП. JVM АРГУМЕНТЫ", left, 414));
         Controls.Add(new FieldPanel(jvmBox, 592) { Location = new Point(left, 432) });
 
-        var cancel = new GhostButton { Text = "Отмена", Bounds = new Rectangle(24, 546, 140, 34) };
+        Controls.Add(Caption("ТЕМА ОФОРМЛЕНИЯ", left, 556));
+
+        var themeButtons = new List<(string Id, GhostButton Button)>();
+        for (int i = 0; i < Theme.Presets.Length; i++)
+        {
+            string presetId = Theme.Presets[i].Id;
+            var button = new GhostButton
+            {
+                Bounds = new Rectangle(left + i * 120, 574, 112, 30),
+            };
+            themeButtons.Add((presetId, button));
+            button.Click += (_, _) =>
+            {
+                themeId = presetId;
+                Theme.Apply(presetId);
+                foreach (var (id, target) in themeButtons)
+                {
+                    target.Text = (id == themeId ? "• " : "") + NameOf(id);
+                }
+                Invalidate(true);
+            };
+            Controls.Add(button);
+        }
+
+        foreach (var (id, target) in themeButtons)
+        {
+            target.Text = (id == themeId ? "• " : "") + NameOf(id);
+        }
+        var cancel = new GhostButton { Text = "Отмена", Bounds = new Rectangle(24, 614, 140, 34) };
         cancel.Click += (_, _) => Close();
         Controls.Add(cancel);
 
-        var save = new AccentButton { Text = "Сохранить", Bounds = new Rectangle(412, 546, 204, 34) };
+        var save = new AccentButton { Text = "Сохранить", Bounds = new Rectangle(412, 614, 204, 34) };
         save.Click += (_, _) =>
         {
             ApplyTo(config);
@@ -206,6 +238,7 @@ internal sealed class SettingsForm : DialogBase
         closeOnLaunchBox.Checked = cfg.CloseOnLaunch;
         discordRpcBox.Checked = cfg.DiscordRpc;
         discordIdBox.Text = cfg.DiscordAppId;
+        themeId = cfg.Theme;
 
         versionBox.Items.Clear();
         string root = Meta.VersionsDir(cfg);
@@ -231,6 +264,7 @@ internal sealed class SettingsForm : DialogBase
 
     private void ApplyTo(AppConfig cfg)
     {
+        cfg.Theme = themeId;
         cfg.RamMb = (int)ramBox.Value;
         cfg.WindowWidth = (int)widthBox.Value;
         cfg.WindowHeight = (int)heightBox.Value;

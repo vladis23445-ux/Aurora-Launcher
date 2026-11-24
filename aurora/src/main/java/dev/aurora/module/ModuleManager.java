@@ -10,6 +10,12 @@ import dev.aurora.modules.Fullbright;
 import dev.aurora.modules.Zoom;
 import dev.aurora.modules.CosmeticsRender;
 import dev.aurora.modules.CustomHand;
+import dev.aurora.modules.PotionStatus;
+import dev.aurora.modules.PlayerEsp;
+import dev.aurora.modules.PlayerArrows;
+import dev.aurora.modules.Crosshair;
+import dev.aurora.modules.Coords;
+import dev.aurora.modules.AutoRespawn;
 import dev.aurora.modules.QuestsHud;
 import dev.aurora.modules.DamageNumbers;
 import dev.aurora.modules.HitParticles;
@@ -48,6 +54,8 @@ public final class ModuleManager {
 
     public void init() {
         register(new TargetEsp(bus));
+        register(new PlayerEsp(bus));
+        register(new PlayerArrows(bus));
         register(new TargetHud(bus));
         register(new TargetInfo(bus));
         register(new Trails(bus));
@@ -65,7 +73,10 @@ public final class ModuleManager {
         register(new DamageNumbers(bus));
         register(new JumpCircles(bus));
         register(new QuestsHud(bus));
+        register(new Coords(bus));
+        register(new PotionStatus(bus));
         register(new Watermark(bus));
+        register(new Crosshair(bus));
         register(new ArmorHud(bus));
         register(new Keystrokes(bus));
         register(new SmoothHotbar(bus));
@@ -73,6 +84,7 @@ public final class ModuleManager {
         register(new Fullbright(bus));
         register(new Zoom(bus));
         register(new AutoSprint(bus));
+        register(new AutoRespawn(bus));
 
         for (Category category : Category.values()) {
             List<Module> list = new ArrayList<>();

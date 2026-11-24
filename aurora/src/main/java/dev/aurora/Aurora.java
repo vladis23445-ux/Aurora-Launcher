@@ -64,6 +64,7 @@ public final class Aurora implements ClientModInitializer {
         config = new ConfigManager(modules);
         config.load();
 
+        dev.aurora.ui.Palette.load();
         ScreenStyler.init();
 
         UseBlockCallback.EVENT.register((player, world, hand, hitResult) -> {

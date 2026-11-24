@@ -8,19 +8,76 @@ namespace AuroraLauncher.UI;
 /// </summary>
 internal static class Theme
 {
-    public static readonly Color BgDeep = Color.FromArgb(7, 7, 13);
-    public static readonly Color Bg = Color.FromArgb(13, 14, 24);
-    public static readonly Color Card = Color.FromArgb(19, 21, 34);
-    public static readonly Color CardInner = Color.FromArgb(26, 29, 45);
-    public static readonly Color CardHover = Color.FromArgb(35, 39, 62);
-    public static readonly Color Stroke = Color.FromArgb(44, 49, 79);
-    public static readonly Color Text = Color.FromArgb(237, 239, 249);
-    public static readonly Color Subtle = Color.FromArgb(142, 150, 180);
+    public static Color BgDeep { get; private set; } = Color.FromArgb(7, 7, 13);
+    public static Color Bg { get; private set; } = Color.FromArgb(13, 14, 24);
+    public static Color Card { get; private set; } = Color.FromArgb(19, 21, 34);
+    public static Color CardInner { get; private set; } = Color.FromArgb(26, 29, 45);
+    public static Color CardHover { get; private set; } = Color.FromArgb(35, 39, 62);
+    public static Color Stroke { get; private set; } = Color.FromArgb(44, 49, 79);
+    public static Color Text { get; private set; } = Color.FromArgb(237, 239, 249);
+    public static Color Subtle { get; private set; } = Color.FromArgb(142, 150, 180);
 
-    public static readonly Color Accent = Color.FromArgb(124, 92, 255);
-    public static readonly Color Accent2 = Color.FromArgb(255, 92, 157);
-    public static readonly Color Mint = Color.FromArgb(195, 180, 255);
-    public static readonly Color Deep = Color.FromArgb(59, 47, 134);
+    public static Color Accent { get; private set; } = Color.FromArgb(124, 92, 255);
+    public static Color Accent2 { get; private set; } = Color.FromArgb(255, 92, 157);
+    public static Color Mint { get; private set; } = Color.FromArgb(195, 180, 255);
+    public static Color Deep { get; private set; } = Color.FromArgb(59, 47, 134);
+
+    public static string Current { get; private set; } = "violet";
+
+    public sealed record Preset(string Id, string Name, Color Accent, Color Accent2, Color Mint,
+        Color Deep, Color BgDeep, Color Bg, Color Card, Color CardInner, Color Stroke);
+
+    public static readonly Preset[] Presets =
+    {
+        new("violet", "Фиолетовая", Color.FromArgb(124, 92, 255), Color.FromArgb(255, 92, 157),
+            Color.FromArgb(195, 180, 255), Color.FromArgb(59, 47, 134), Color.FromArgb(7, 7, 13),
+            Color.FromArgb(13, 14, 24), Color.FromArgb(19, 21, 34), Color.FromArgb(26, 29, 45),
+            Color.FromArgb(44, 49, 79)),
+        new("emerald", "Изумрудная", Color.FromArgb(59, 232, 160), Color.FromArgb(64, 214, 214),
+            Color.FromArgb(140, 255, 200), Color.FromArgb(30, 138, 96), Color.FromArgb(4, 14, 10),
+            Color.FromArgb(8, 24, 18), Color.FromArgb(14, 32, 24), Color.FromArgb(20, 43, 33),
+            Color.FromArgb(38, 62, 52)),
+        new("crimson", "Алая", Color.FromArgb(255, 77, 109), Color.FromArgb(255, 162, 77),
+            Color.FromArgb(255, 194, 201), Color.FromArgb(138, 30, 50), Color.FromArgb(15, 5, 8),
+            Color.FromArgb(26, 10, 14), Color.FromArgb(36, 15, 21), Color.FromArgb(48, 20, 28),
+            Color.FromArgb(74, 34, 44)),
+        new("ocean", "Океан", Color.FromArgb(76, 141, 255), Color.FromArgb(65, 224, 224),
+            Color.FromArgb(191, 227, 255), Color.FromArgb(30, 76, 138), Color.FromArgb(4, 7, 15),
+            Color.FromArgb(8, 16, 28), Color.FromArgb(15, 24, 38), Color.FromArgb(21, 33, 50),
+            Color.FromArgb(35, 53, 80)),
+        new("amber", "Янтарная", Color.FromArgb(255, 176, 58), Color.FromArgb(255, 107, 61),
+            Color.FromArgb(255, 224, 178), Color.FromArgb(138, 90, 30), Color.FromArgb(15, 10, 4),
+            Color.FromArgb(26, 18, 6), Color.FromArgb(38, 27, 11), Color.FromArgb(50, 36, 15),
+            Color.FromArgb(76, 55, 26)),
+    };
+
+    /// <summary>Применяет тему по идентификатору; неизвестный id → фиолетовая.</summary>
+    public static void Apply(string? id)
+    {
+        var preset = Presets.FirstOrDefault(p => p.Id == id) ?? Presets[0];
+        Current = preset.Id;
+        Accent = preset.Accent;
+        Accent2 = preset.Accent2;
+        Mint = preset.Mint;
+        Deep = preset.Deep;
+        BgDeep = preset.BgDeep;
+        Bg = preset.Bg;
+        Card = preset.Card;
+        CardInner = preset.CardInner;
+        Stroke = preset.Stroke;
+        Text = Color.FromArgb(
+            Math.Min(255, preset.Card.R + 218),
+            Math.Min(255, preset.Card.G + 218),
+            Math.Min(255, preset.Card.B + 215));
+        Subtle = Color.FromArgb(
+            (preset.Accent.R + preset.Accent2.R + 255) / 3,
+            (preset.Accent.G + preset.Accent2.G + 255) / 3,
+            (preset.Accent.B + preset.Accent2.B + 255) / 3);
+        CardHover = Color.FromArgb(
+            Math.Min(255, preset.CardInner.R + 10),
+            Math.Min(255, preset.CardInner.G + 10),
+            Math.Min(255, preset.CardInner.B + 17));
+    }
     public static readonly Color Danger = Color.FromArgb(255, 95, 109);
     public static readonly Color Good = Color.FromArgb(74, 222, 128);
 
