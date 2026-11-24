@@ -5,6 +5,7 @@ public sealed class Quest
 {
     public required string Id { get; init; }
     public required string Title { get; init; }
+    public string Desc { get; init; } = "";
     public required string Counter { get; init; }
     public required double Target { get; init; }
     public required int Reward { get; init; }
@@ -23,19 +24,19 @@ public static class Quests
 
     public static readonly List<Quest> All = new()
     {
-        new Quest { Id = "first_blood", Title = "Первая кровь", Counter = Kills, Target = 1, Reward = 20, Unit = "убийство" },
-        new Quest { Id = "kills_10", Title = "Десятка", Counter = Kills, Target = 10, Reward = 60, Unit = "убийств" },
-        new Quest { Id = "kills_50", Title = "Охотник", Counter = Kills, Target = 50, Reward = 220, Unit = "убийств" },
-        new Quest { Id = "mine_100", Title = "Шахтёр", Counter = BlocksBroken, Target = 100, Reward = 40, Unit = "блоков" },
-        new Quest { Id = "mine_500", Title = "Проходчик", Counter = BlocksBroken, Target = 500, Reward = 140, Unit = "блоков" },
-        new Quest { Id = "mine_1500", Title = "Крот", Counter = BlocksBroken, Target = 1500, Reward = 320, Unit = "блоков" },
-        new Quest { Id = "build_50", Title = "Строитель", Counter = BlocksPlaced, Target = 50, Reward = 40, Unit = "блоков" },
-        new Quest { Id = "build_300", Title = "Архитектор", Counter = BlocksPlaced, Target = 300, Reward = 180, Unit = "блоков" },
-        new Quest { Id = "walk_1000", Title = "Ходок", Counter = Distance, Target = 1000, Reward = 70, Unit = "м" },
-        new Quest { Id = "walk_5000", Title = "Странник", Counter = Distance, Target = 5000, Reward = 260, Unit = "м" },
-        new Quest { Id = "jump_200", Title = "Прыгун", Counter = Jumps, Target = 200, Reward = 60, Unit = "прыжков" },
-        new Quest { Id = "play_hour", Title = "Час в деле", Counter = Playtime, Target = 3600, Reward = 120, Unit = "с" },
-        new Quest { Id = "play_five", Title = "Пять часов", Counter = Playtime, Target = 18000, Reward = 450, Unit = "с" },
+        new Quest { Id = "first_blood", Title = "Первая кровь", Desc = "Убейте любого моба или игрока", Counter = Kills, Target = 1, Reward = 20, Unit = "убийство" },
+        new Quest { Id = "kills_10", Title = "Десятка", Desc = "Убейте 10 мобов или игроков", Counter = Kills, Target = 10, Reward = 60, Unit = "убийств" },
+        new Quest { Id = "kills_50", Title = "Охотник", Desc = "Убейте 50 мобов или игроков", Counter = Kills, Target = 50, Reward = 220, Unit = "убийств" },
+        new Quest { Id = "mine_100", Title = "Шахтёр", Desc = "Сломайте 100 блоков", Counter = BlocksBroken, Target = 100, Reward = 40, Unit = "блоков" },
+        new Quest { Id = "mine_500", Title = "Проходчик", Desc = "Сломайте 500 блоков", Counter = BlocksBroken, Target = 500, Reward = 140, Unit = "блоков" },
+        new Quest { Id = "mine_1500", Title = "Крот", Desc = "Сломайте 1500 блоков", Counter = BlocksBroken, Target = 1500, Reward = 320, Unit = "блоков" },
+        new Quest { Id = "build_50", Title = "Строитель", Desc = "Поставьте 50 блоков", Counter = BlocksPlaced, Target = 50, Reward = 40, Unit = "блоков" },
+        new Quest { Id = "build_300", Title = "Архитектор", Desc = "Поставьте 300 блоков", Counter = BlocksPlaced, Target = 300, Reward = 180, Unit = "блоков" },
+        new Quest { Id = "walk_1000", Title = "Ходок", Desc = "Пройдите 1000 метров", Counter = Distance, Target = 1000, Reward = 70, Unit = "м" },
+        new Quest { Id = "walk_5000", Title = "Странник", Desc = "Пройдите 5000 метров", Counter = Distance, Target = 5000, Reward = 260, Unit = "м" },
+        new Quest { Id = "jump_200", Title = "Прыгун", Desc = "Прыгните 200 раз", Counter = Jumps, Target = 200, Reward = 60, Unit = "прыжков" },
+        new Quest { Id = "play_hour", Title = "Час в деле", Desc = "Играйте 1 час", Counter = Playtime, Target = 3600, Reward = 120, Unit = "с" },
+        new Quest { Id = "play_five", Title = "Пять часов", Desc = "Играйте 5 часов", Counter = Playtime, Target = 18000, Reward = 450, Unit = "с" },
     };
 
     public static double Progress(ProfileData data, Quest quest) =>

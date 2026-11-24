@@ -24,14 +24,25 @@ import java.util.List;
 public class CosmeticsRender extends Module {
 
     private final BooleanSetting self = register(new BooleanSetting("Self", true));
-    private final BooleanSetting others = register(new BooleanSetting("Others", false));
+    private final BooleanSetting others = register(new BooleanSetting("Others", true));
     private final BooleanSetting sway = register(new BooleanSetting("Sway", true));
     private final NumberSetting scale = register(new NumberSetting("Scale", 1.0, 0.6, 1.6, 0.05));
+
+    private int debugFrames;
 
     public CosmeticsRender(EventBus bus) {
         super(bus, "Cosmetics", "Плащи и короны, купленные в лаунчере", Category.RENDER);
         setEnabled(true);
     }
+
+    @Override
+    public void onEnable() {
+        Cosmetic cape = Cosmetic.equipped(Cosmetic.Type.CAPE);
+        Cosmetic crown = Cosmetic.equipped(Cosmetic.Type.CROWN);
+        dev.aurora.Aurora.LOGGER.info("Cosmetics: плащ={}, корона={}",
+                cape == null ? "нет" : cape.id(), crown == null ? "нет" : crown.id());
+    }
+
 
     @Override
     public void onHudRender(DrawContext context, float tickDelta) {
@@ -42,8 +53,24 @@ public class CosmeticsRender extends Module {
         Cosmetic cape = Cosmetic.equipped(Cosmetic.Type.CAPE);
         Cosmetic crown = Cosmetic.equipped(Cosmetic.Type.CROWN);
         if (cape == null && crown == null) {
+            if (debugFrames < 3) {
+                debugFrames++;
+                dev.aurora.Aurora.LOGGER.info("Cosmetics: ничего не надето — проверьте profile.json");
+            }
             return;
         }
+
+        if (debugFrames < 3) {
+            debugFrames++;
+            Vec3d head = CameraUtil.lerped(mc.player).add(0.0, 1.6, 0.0);
+            float[] projected = ScreenProjection.project(head);
+            dev.aurora.Aurora.LOGGER.info("Cosmetics: плащ={}, корона={}, thirdPerson={}, projection={}",
+                    cape == null ? "нет" : cape.id(),
+                    crown == null ? "нет" : crown.id(),
+                    mc.options.getPerspective().isFirstPerson() ? "нет" : "да",
+                    projected == null ? "за камерой" : "ok");
+        }
+
 
         float size = scale.getFloat();
         boolean drawOthers = others.getValue();

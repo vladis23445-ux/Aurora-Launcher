@@ -55,7 +55,7 @@ internal sealed class CosmeticsForm : DialogBase
             int row = questIndex < 7 ? questIndex : questIndex - 7;
             var questRow = new QuestRow(quest)
             {
-                Bounds = new Rectangle(24 + column * 400, 366 + row * 30, 372, 27),
+                Bounds = new Rectangle(24 + column * 400, 362 + row * 34, 372, 32),
             };
             Controls.Add(questRow);
             questIndex++;
@@ -245,24 +245,28 @@ internal sealed class QuestRow : Control
         bool done = data.IsClaimed(quest.Id);
         Color accent = done ? Theme.Good : Theme.Accent;
 
-        TextRenderer.DrawText(g, quest.Title, Theme.FontSmall,
-            new Rectangle(0, 2, 130, 16), done ? Theme.Mint : Theme.Text,
-            TextFormatFlags.Left | TextFormatFlags.NoPadding);
-
-        var bar = new RectangleF(132, 8, 122, 5);
-        Theme.Fill(g, bar, 2.5f, Color.FromArgb(22, 255, 255, 255));
-        if (fraction > 0.01)
-        {
-            Theme.Fill(g, new RectangleF(bar.X, bar.Y, (float)(bar.Width * fraction), bar.Height), 2.5f, accent);
-        }
-
-        string progress = done ? "выполнено" : Quests.FormatProgress(quest, Quests.Progress(data, quest));
-        TextRenderer.DrawText(g, progress, Theme.FontSmall,
-            new Rectangle(260, 2, 58, 16), done ? Theme.Mint : Theme.Subtle,
+        TextRenderer.DrawText(g, quest.Title, Theme.FontBold,
+            new Rectangle(0, 0, 240, 14), done ? Theme.Mint : Theme.Text,
             TextFormatFlags.Left | TextFormatFlags.NoPadding);
 
         TextRenderer.DrawText(g, "+" + quest.Reward, Theme.FontSmall,
-            new Rectangle(320, 2, 50, 16), Color.FromArgb(255, 224, 150),
+            new Rectangle(302, 0, 68, 14), Color.FromArgb(255, 224, 150),
             TextFormatFlags.Right | TextFormatFlags.NoPadding);
+
+        TextRenderer.DrawText(g, quest.Desc, Theme.FontSmall,
+            new Rectangle(0, 14, 240, 14), Color.FromArgb(155, Theme.Subtle),
+            TextFormatFlags.Left | TextFormatFlags.NoPadding | TextFormatFlags.EndEllipsis);
+
+        string progress = done ? "выполнено" : Quests.FormatProgress(quest, Quests.Progress(data, quest));
+        TextRenderer.DrawText(g, progress, Theme.FontSmall,
+            new Rectangle(246, 14, 124, 14), done ? Theme.Mint : Theme.Subtle,
+            TextFormatFlags.Right | TextFormatFlags.NoPadding);
+
+        var bar = new RectangleF(0, 29, Width - 2, 3);
+        Theme.Fill(g, bar, 1.5f, Color.FromArgb(22, 255, 255, 255));
+        if (fraction > 0.01)
+        {
+            Theme.Fill(g, new RectangleF(bar.X, bar.Y, (float)(bar.Width * fraction), bar.Height), 1.5f, accent);
+        }
     }
 }
